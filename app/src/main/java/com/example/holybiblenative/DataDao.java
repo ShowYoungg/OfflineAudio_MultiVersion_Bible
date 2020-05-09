@@ -1,5 +1,6 @@
 package com.example.holybiblenative;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
@@ -23,6 +24,9 @@ public interface DataDao {
 
     @Insert
     void insertData(DataObject dataObject);
+
+    @Insert
+    void insertAllData(ArrayList<DataObject> dataObject);
 
     @Delete
     void deleteData(DataObject dataObject);

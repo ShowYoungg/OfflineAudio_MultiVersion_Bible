@@ -12,79 +12,74 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    //private AppDatabase mDb;
-    private DatabaseCopier mDb;
-    private DataObject dataObject;
+    private AppDatabase mDb;
+    private SavedChaptersAndVerses savedChaptersAndVerses;
     private SharedPreferences sharedPreferences;
     private LinearLayout progressBar;
     private List<String> ll;
     private String[] words;
-
+    private ArrayList<DataObject> dl;
+    private String dbName;
     private int databaseStatus;
     public static final String SHARED_PREFERENCE_NAME = "Database";
+
+
+    private String[] all = {"Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
+            "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings",
+            "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther", "Job", "Psalms",
+            "Proverbs", "Ecclesiastes", "Song of Solomon", "Isaiah", "Jeremiah", "Lamentations",
+            "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum",
+            "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi", "Matthew", "Mark",
+            "Luke", "John", "Acts", "Romans", "1 Corinthians", "2 Corinthians", "Galatians",
+            "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians",
+            "1 Timothy", "2 Timothy", "Titus", "Philemon", "Hebrews", "James", "1 Peter", "2 Peter",
+            "1 John", "2 John", "3 John", "Jude", "Revelation"};
 
     private String[] oldNewAll = {"All Books", "Old Testament", "New Testament"};
     private String welcomeWord = "For God so love the world that he gave his only Begotten Son" +
             " that whosoever believe in him shall have not perish but have everlasting life";
 
+    int checkerA = 0;
+    int checkerB = 0;
+
     @Override
     protected void onStart() {
         super.onStart();
 
-
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                if (databaseStatus == 0){
-                    progressBar.setVisibility(View.VISIBLE);
-
-                    try{
-                        //copyDatabase();
-                        //readTextFile(ll);
-                        Thread.sleep(3000);
-                        //dataObject = mDb.dataDao().loadById(31000);
-                        if (AppDatabase.dataDao() != null) {
-                            dataObject= AppDatabase.dataDao().loadById(2);
-
-                            Thread.sleep(3000);
-                            Log.i("DATABASE_QUERY", dataObject.getContent() + " " + dataObject.getBooks());
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    //Toast.makeText(MainActivity.this, "Database already Created", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+//        try {
+//            copyDatabase("TEN_IN_ONE.db");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        if (databaseStatus == 0){
+            copyAllBooks();
+        } else {
+            Log.i("DatabaseStatus", "books already copied");
+        }
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        dataObject = new DataObject();
-        //mDb = AppDatabase.getInstance(getApplicationContext());
-        mDb = DatabaseCopier.getInstance(getApplicationContext());
+        dl = new ArrayList<>();
+        savedChaptersAndVerses = new SavedChaptersAndVerses();
 
         progressBar = findViewById(R.id.progress_bar_layout);
 
-
         sharedPreferences = getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         databaseStatus = sharedPreferences.getInt("DATABASE", 0);
-
-
 
         ArrayAdapter adapter = new ArrayAdapter(this, R.layout.books_list_view, oldNewAll );
         ListView listView = findViewById(R.id.books_list);
@@ -101,100 +96,73 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void readTextFile(List<String> l) throws IOException{
-        String s = "";
-        InputStream is = this.getResources().openRawResource(R.raw.bible);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        while(true){
-            try{
-                if((s=reader.readLine()) == null) break;
-            }catch (IOException e){
-                e.printStackTrace();
-            }
-            joinString(s);
+    private void copyAllBooks() {
+        for (String s: all) {
+            AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    dbName = s + ".db";
+
+                    if (s.equals("Galatians") || s.equals("Mark") || s.equals("Ephesians") || s.equals("3 John")
+                            || s.equals("Philippians") || s.equals("Colossians") || s.equals("1 Thessalonians")
+                            || s.equals("2 Thessalonians")|| s.equals("Jude") || s.equals("1 Timothy")
+                            || s.equals("2 Timothy") || s.equals("Titus") || s.equals("Philemon")
+                            || s.equals("Hebrews") || s.equals("James") || s.equals("1 Peter")
+                            || s.equals("2 Peter") || s.equals("1 John") || s.equals("2 John")) {
+
+                        if (checkerA == 0){
+                            try {
+                                copyDatabase("NewTestament.db");
+                                checkerA = 1;
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    } else if (s.equals("Ruth") || s.equals("Song of Solomon") || s.equals("Lamentations")
+                            || s.equals("Joel") || s.equals("Amos") || s.equals("Obadiah")
+                            || s.equals("Jonah") || s.equals("Micah") || s.equals("Nahum")
+                            || s.equals("Habakkuk") || s.equals("Zephaniah") || s.equals("Hosea")
+                            || s.equals("Haggai") || s.equals("Malachi") || s.equals("Joshua")){
+
+                        if (checkerB == 0){
+                            try {
+                                copyDatabase("OldTestament.db");
+                                checkerB = 1;
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    } else {
+                        try {
+                            copyDatabase(dbName);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
         }
-        is.close();
     }
 
-    private void joinString(String s){
-        StringBuilder stringBuilder = new StringBuilder();
-        words = s.split("\\s+");
-        String[] stl = new String[3];
-        if (words[0].equals("1") || words[0].equals("2") || words[0].equals("3")){
-            stl[0] = words[0] + " " + words[1];
-            stl[1] = words[2];
-            Log.i("CCCC1", stl[0] + " /" + words[2]);
-
-            for(int i = 3; i <= words.length-1; i++){
-                stringBuilder.append(words[i]).append(" ");
-            }
-            stl[2] = stringBuilder.toString();
-        } else if(words[0].equals("Song") && words[1].equals("of") ){
-            stl[0] = words[0] + " " + words[1] + " " + words[2];
-            stl[1] = words[3];
-
-            Log.i("CCCC3", stl[0] + " /" + words[3]);
-
-            for(int i = 4; i <= words.length-1; i++){
-                stringBuilder.append(words[i]).append(" ");
-            }
-            stl[2] = stringBuilder.toString();
-
-        } else {
-            stl[0] = words[0];
-            stl[1] = words[1];
-
-            Log.i("CCCC2", stl[0] + " /" + words[1]);
-
-            for(int i = 2; i <= words.length-1; i++){
-                stringBuilder.append(words[i]).append(" ");
-            }
-            stl[2] = stringBuilder.toString();
-        }
-
-
-        dataObject.setBooks(stl[0]);
-        dataObject.setContent(stl[2]);
-        //stl[1] is written as string (Chapter:Verse) i.e 12:10; hence, the need for separation.
-        String[] sg = stl[1].split(":");
-        dataObject.setChapter(Integer.parseInt(sg[0]));
-        dataObject.setVerse(Integer.parseInt(sg[1]));
-
-        //mDb.dataDao().insertData(dataObject);
-        AppDatabase.dataDao().insertData(dataObject);
-
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt("DATABASE", 1);
-        editor.apply();
-        
-        Log.i("CHAPTERANDVERSE", sg[0] + " " + sg[1]);
-        Log.i("LINEINFOR", stl[0] + " " + stl[1] + " " + stl[2]);
-    }
-
-    private void copyDatabase() throws IOException{
-        InputStream inputStream = getApplicationContext().getAssets().open("Bible.db");
-        //InputStream inputStream = this.getResources().openRawResource(R.raw.bible2);
-        //private static String DB_NAME = bible.sqlite or bible.db
-        //Hard coded DB_PATH is "data/data" + context.getPackageName() + "/databases/"
-        String DB_PATH = getApplicationContext().getDatabasePath("Bible.db").getAbsolutePath();
-        //String outputFile = DB_PATH + DATABASE_NAME;
+    private void copyDatabase(String dbName) throws IOException{
+        InputStream inputStream = getApplicationContext().getAssets().open(dbName);
+        String DB_PATH = getApplicationContext().getDatabasePath(dbName).getAbsolutePath();
         OutputStream outputStream = new FileOutputStream(DB_PATH);
         byte[] buffer = new byte[1024];
         int length;
         while ((length = inputStream.read(buffer))> 0){
             outputStream.write(buffer, 0, length);
         }
-
         Log.i("DATABASE_PATH", DB_PATH);
 
         outputStream.flush();
         outputStream.close();
         inputStream.close();
-        progressBar.setVisibility(View.GONE);
 
+        if (dbName.equals("Revelation.db")){
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putInt("DATABASE", 1);
+            editor.apply();
+        }
     }
-//    private boolean checkDatabase(){
-//        File databaseFile = new File(DB_PATH + DATABASE_NAME);
-//        return databaseFile.exists();
-//    }
 }

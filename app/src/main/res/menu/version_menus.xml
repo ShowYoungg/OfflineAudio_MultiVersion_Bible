@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/search_bar"
+        android:title="Search"
+        android:icon="@drawable/ic_action_name"
+        app:showAsAction="always"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"/>
+
+    <item android:id="@+id/kjv"
+        android:title="King James Version" />
+
+    <item android:id="@+id/asv"
+        android:title="American Standard Version"/>
+
+    <item android:id="@+id/drb"
+        android:title="Douay-Rheims Bible"/>
+
+    <item android:id="@+id/darby"
+        android:title="Darby Bible Translation"/>
+
+    <item android:id="@+id/erv"
+        android:title="English Revised Version"/>
+
+    <item android:id="@+id/wbt"
+        android:title="Webster Bible Version" />
+
+    <item android:id="@+id/ylt"
+        android:title="Young's Literal Translation"/>
+
+    <item android:id="@+id/akjv"
+        android:title="American King James Version"/>
+
+    <item android:id="@+id/bbe"
+        android:title="Basic Bible English"/>
+
+    <item android:id="@+id/web"
+        android:title="World English Bible"/>
+
+</menu>

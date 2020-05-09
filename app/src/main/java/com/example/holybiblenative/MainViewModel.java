@@ -17,16 +17,14 @@ public class MainViewModel extends AndroidViewModel {
 
     private LiveData<List<DataObject>> dataObj;
     private static ExecutorService executorService;
-    //private static AppDatabase mDb;
-    private static DatabaseCopier mDb;
+    private static AppDatabase mDb;
 
     public MainViewModel(@NonNull Application application) {
         super(application);
 
-        //mDb = AppDatabase.getInstance(this.getApplication());
-        mDb = DatabaseCopier.getInstance(this.getApplication());
-        //dataObj = mDb.dataDao().loadAllData();
-        dataObj = AppDatabase.dataDao().loadAllData();
+        mDb = AppDatabase.getInstance(this.getApplication());
+        dataObj = mDb.dataDao().loadAllData();
+
     }
 
     public LiveData<List<DataObject>> getDataObj() {
@@ -38,8 +36,7 @@ public class MainViewModel extends AndroidViewModel {
         executorService.execute(new Runnable() {
             @Override
             public void run() {
-                //smDb.dataDao().deleteData(data);
-                AppDatabase.dataDao().deleteData(data);
+                mDb.dataDao().deleteData(data);
             }
         });
     }

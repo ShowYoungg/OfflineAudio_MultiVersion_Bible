@@ -1,5 +1,8 @@
 package com.example.holybiblenative;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
@@ -10,7 +13,7 @@ import androidx.room.PrimaryKey;
 
 
 @Entity(tableName = "Bible")
-public class DataObject {
+public class DataObject implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -36,6 +39,40 @@ public class DataObject {
         this.verse = verse;
         this.content = content;
     }
+
+    protected DataObject(Parcel in) {
+        id = in.readInt();
+        books = in.readString();
+        chapter = in.readInt();
+        verse = in.readInt();
+        content = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(books);
+        dest.writeInt(chapter);
+        dest.writeInt(verse);
+        dest.writeString(content);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<DataObject> CREATOR = new Creator<DataObject>() {
+        @Override
+        public DataObject createFromParcel(Parcel in) {
+            return new DataObject(in);
+        }
+
+        @Override
+        public DataObject[] newArray(int size) {
+            return new DataObject[size];
+        }
+    };
 
     public int getId() {
         return id;
