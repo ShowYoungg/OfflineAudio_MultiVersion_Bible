@@ -38,11 +38,19 @@ public class Database {
         dbHelper.close();
     }
 
-    public ArrayList<DataObject> queryFromDb_byBooks(int chpt){
+    public ArrayList<DataObject> queryFromDb_byBooks(int chpt, String query_string){
         ArrayList<DataObject> dList = new ArrayList<>();
+        String query;
+        if (query_string.equals("")){
+
+            query ="SELECT * FROM Bible WHERE chapter= ?";
+        } else {
+            query ="SELECT * FROM Bible WHERE chapter= ? AND "
+                    +  "content LIKE '%"+query_string+ "%'";
+        }
 
         try{
-            String query ="SELECT * FROM Bible WHERE chapter= ?";
+
             Cursor cursor = database.rawQuery(query,  new String[]{String.valueOf(chpt)});
             if (cursor.moveToFirst()){
                 do {

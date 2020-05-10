@@ -10,12 +10,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class DisplayActivity extends AppCompatActivity {
 
@@ -153,6 +155,13 @@ public class DisplayActivity extends AppCompatActivity {
         setContentView(R.layout.activity_display);
 
         sharedPreferences = getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE);
+        final TextToSpeech textToSpeech = new TextToSpeech(getApplicationContext(), (TextToSpeech.OnInitListener) this);
+        textToSpeech.setLanguage(Locale.ENGLISH);
+        textToSpeech.setPitch(0.8f);
+        textToSpeech.setSpeechRate(1.1f);
+
+
+
         dataObject = new DataObject();
         dataObjectArrayList = new ArrayList<>();
         dataObjectsList = new ArrayList<>();
@@ -171,16 +180,13 @@ public class DisplayActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putInt("Chapter", chapter);
                 editor.putString("Book", book);
+                editor.putString("DATATOUSE", database_toUse);
                 editor.apply();
             }
-
-
-            //dbName = book + ".db";
 
             if (Intent.ACTION_SEARCH.equals(getIntent().getAction())){
                 handleIntent(getIntent());
             } else {
-                //loadObservableData();
                 loadData(content, book, chapter, verse, "");
             }
         }
@@ -224,23 +230,24 @@ public class DisplayActivity extends AppCompatActivity {
             public void run() {
                 if (database_toUse.equals("OldTestament.db")){
                     dbName = "OldTestament.db";
+                    Database db = new Database(getApplicationContext(), dbName);
+                    db.open();
+                    dataObjectArrayList = db.test2(content, book, chapter, verse, query);
+                    db.close();
                 } else if (database_toUse.equals("NewTestament.db")){
                     dbName = "NewTestament.db";
+                    Database db = new Database(getApplicationContext(), dbName);
+                    db.open();
+                    dataObjectArrayList = db.test2(content, book, chapter, verse, query);
+                    db.close();
 
                 } else {
                     dbName = book + ".db";
                     Database db = new Database(getApplicationContext(), dbName);
                     db.open();
-                    dataObjectArrayList = db.queryFromDb_byBooks(chapter);
+                    dataObjectArrayList = db.queryFromDb_byBooks(chapter, query);
                     db.close();
                 }
-
-                Database db = new Database(getApplicationContext(), dbName);
-                db.open();
-
-                //dataObjectArrayList = db.test2(content, book, chapter, verse, query);
-                dataObjectArrayList = db.queryFromDb_byBooks(chapter);
-                db.close();
             }
         });
 
@@ -270,6 +277,7 @@ public class DisplayActivity extends AppCompatActivity {
             content = "field5";
             book = sharedPreferences.getString("Book", "Genesis.db");
             chapter = sharedPreferences.getInt("Chapter", 0);
+            database_toUse = sharedPreferences.getString("DATATOUSE", book + ".db");
             verse = 1;
 
             loadData(content, book, chapter, verse, query);
