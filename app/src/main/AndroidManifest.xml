@@ -21,32 +21,17 @@
             android:label="@string/title_activity_bottom_navigation"></activity>
         <activity android:name=".SearchResultsActivity">
 
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.SEARCH" /> -->
-            <!-- </intent-filter> -->
-
-
-            <!-- <meta-data -->
-            <!-- android:name="android.app.searchable" -->
-            <!-- android:resource="@xml/searchable" /> -->
         </activity>
         <activity android:name=".DisplayActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".TestamentsActivity" />
-            <!-- <meta-data -->
-            <!-- android:name="android.app.default_searchable" -->
-            <!-- android:value=".SearchResultsActivity" /> -->
-
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.app.searchable"
-                android:resource="@xml/searchable" />
         </activity>
         <activity android:name=".ChaptersActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".TestamentsActivity" />
+
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -56,10 +41,9 @@
                 android:resource="@xml/searchable" />
         </activity>
         <activity android:name=".TestamentsActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />

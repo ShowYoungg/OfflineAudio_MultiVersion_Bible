@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:layout_gravity="center"
     android:layout_height="match_parent"
     android:layout_margin="25dp"
     tools:context=".MainActivity">
@@ -10,14 +11,18 @@
     <ListView
         android:id="@+id/books_list"
         android:layout_gravity="center_vertical"
+        android:layout_marginStart="100dp"
+        android:layout_marginEnd="100dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
     <LinearLayout
         android:id="@+id/progress_bar_layout"
         android:layout_gravity="center"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="125dp"
         android:orientation="horizontal"
         android:visibility="invisible"
         android:weightSum="2.5"
@@ -28,10 +33,6 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:paddingTop="200dp"
-            android:paddingBottom="200dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
             android:indeterminateBehavior="repeat"
             android:layout_gravity="center_vertical"/>
 
@@ -41,7 +42,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1.5"
             android:text="Loading"
-            android:textSize="30sp"
+            android:textSize="35sp"
             android:gravity="center_vertical"
             android:textColor="@color/colorAccent"/>
 

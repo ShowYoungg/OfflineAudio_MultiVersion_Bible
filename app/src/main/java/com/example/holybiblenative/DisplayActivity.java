@@ -20,6 +20,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -45,6 +47,7 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
     public int verse;
     private int number_of_chapters;
     private boolean twoPane = false;
+    private RelativeLayout progressBarLayout;
 
     private TextToSpeech textToSpeech;
     private SharedPreferences sharedPreferences;
@@ -58,9 +61,24 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         //Associate searchable configuration with the SearchView
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.search_bar).getActionView();
-        if (searchManager != null) {
-            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        }
+        searchView.setQueryHint("Search by words");
+        searchView.setSubmitButtonEnabled(false);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                displayAdapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+
+//        if (searchManager != null) {
+//            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+//        }
         return true;
     }
 
@@ -146,7 +164,7 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         if (number_of_chapters == 0){
             content = "field5";
             book = sharedPreferences.getString("Book", "Genesis.db");
-            chapter = sharedPreferences.getInt("Chapter", 0);
+           //chapter = sharedPreferences.getInt("Chapter", 0);
             database_toUse = sharedPreferences.getString("DATATOUSE", book + ".db");
             number_of_chapters = sharedPreferences.getInt("Number of Chapters", 0);
         }
@@ -157,7 +175,10 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         super.onRestoreInstanceState(savedInstanceState);
 
         dataObjectArrayList = savedInstanceState.getParcelableArrayList("LIST");
-        displayAdapter = new DisplayAdapter(getApplicationContext(), dataObjectArrayList, content);
+        
+        if (twoPane) chapter = savedInstanceState.getInt("Chapter");
+
+        displayAdapter = new DisplayAdapter(getApplicationContext(), dataObjectArrayList, content, textToSpeech);
         displayList.setAdapter(displayAdapter);
     }
 
@@ -167,8 +188,11 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
 
         if ((displayAdapter.getDataObjects()) != null) {
             savedInstanceState.putParcelableArrayList("LIST", new ArrayList<DataObject>(displayAdapter.getDataObjects()));
+            if (twoPane) savedInstanceState.putInt("Chapter", chapter);
+
         } else{
             savedInstanceState.putParcelableArrayList("LIST", new ArrayList<DataObject>(dataObjectArrayList));
+            if (twoPane) savedInstanceState.putInt("Chapter", chapter);
         }
     }
 
@@ -192,7 +216,9 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         dataObjectsList = new ArrayList<>();
         content = "field5";
 
-        displayList =findViewById(R.id.display_chapters);
+        displayList = findViewById(R.id.display_chapters);
+        progressBarLayout = findViewById(R.id.layout_progress_bar);
+        //progressBarLayout.setVisibility(View.VISIBLE);
         final BottomNavigationView bottomNavigationView = findViewById(R.id.nav_view);
         bottomNavigationView.setOnNavigationItemSelectedListener(getmNavigate());
 
@@ -212,6 +238,7 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
                 database_toUse = getIntent().getStringExtra("DATABASE_TO_USE");
                 number_of_chapters = getIntent().getIntExtra("Number of Chapters", 0);
                 verse = 1;
+
                 Bundle b = new Bundle();
                 b.putInt("Number of Chapters", number_of_chapters);
 
@@ -277,6 +304,7 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
     }
 
     private void loadData(String content, String book, int chapter, int verse, String query) {
+        progressBarLayout.setVisibility(View.VISIBLE);
         if (dataObjectArrayList.size() >= 1){
             dataObjectArrayList.clear();
             dataObjectArrayList = new ArrayList<>();
@@ -312,8 +340,9 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        displayAdapter = new DisplayAdapter(this, dataObjectArrayList, content);
+        displayAdapter = new DisplayAdapter(this, dataObjectArrayList, content, textToSpeech);
         displayList.setAdapter(displayAdapter);
+        progressBarLayout.setVisibility(View.GONE);
     }
 
     @Override
@@ -337,6 +366,18 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
             verse = 1;
 
             loadData(content, book, chapter, verse, query);
+
+            Bundle b = new Bundle();
+            b.putInt("Number of Chapters", number_of_chapters);
+
+            if (twoPane){
+                BibleFragment bibleFragment = new BibleFragment();
+                bibleFragment.setArguments(b);
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.bible_frag, bibleFragment).commit();
+            }
+
         }
     }
 
@@ -361,8 +402,14 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         super.onPause();
         if (textToSpeech != null){
             textToSpeech.stop();
-            textToSpeech.shutdown();
+            //textToSpeech.shutdown();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        textToSpeech.shutdown();
     }
 
     @Override

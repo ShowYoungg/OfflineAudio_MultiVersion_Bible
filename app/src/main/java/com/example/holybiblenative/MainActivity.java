@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -12,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,12 +26,13 @@ public class MainActivity extends AppCompatActivity {
     private AppDatabase mDb;
     private SavedChaptersAndVerses savedChaptersAndVerses;
     private SharedPreferences sharedPreferences;
-    private LinearLayout progressBar;
+    private LinearLayout progressBarLayout;
     private List<String> ll;
     private String[] words;
     private ArrayList<DataObject> dl;
     private String dbName;
     private int databaseStatus;
+    private ListView listView;
     public static final String SHARED_PREFERENCE_NAME = "Database";
 
 
@@ -55,15 +58,46 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-//        try {
-//            copyDatabase("TEN_IN_ONE.db");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+//        progressBarLayout.setVisibility(View.VISIBLE);
+//        listView.setVisibility(View.GONE);
+
         if (databaseStatus == 0){
+            listView.setVisibility(View.GONE);
+            progressBarLayout.setVisibility(View.VISIBLE);
+            monitorFileCopy();
+
             copyAllBooks();
         } else {
             Log.i("DatabaseStatus", "books already copied");
+        }
+    }
+
+    private void monitorFileCopy() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (checkCopyStatus()){
+                    progressBarLayout.setVisibility(View.GONE);
+                    listView.setVisibility(View.VISIBLE);
+                    return;
+                } else {
+                    monitorFileCopy();
+                }
+            }
+        }, 400);
+    }
+
+    private boolean checkCopyStatus(){
+        String DB_PATH_CHECK1 = getApplicationContext().getDatabasePath("Revelation.db").getAbsolutePath();
+        String DB_PATH_CHECK2 = getApplicationContext().getDatabasePath("Matthew.db").getAbsolutePath();
+        String DB_PATH_CHECK3 = getApplicationContext().getDatabasePath("OldTestament.db").getAbsolutePath();
+        File file1 = new File(DB_PATH_CHECK1);
+        File file2 = new File(DB_PATH_CHECK2);
+        File file3 = new File(DB_PATH_CHECK3);
+        if (file1.exists() && file2.exists() && file3.exists()){
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -76,14 +110,14 @@ public class MainActivity extends AppCompatActivity {
         dl = new ArrayList<>();
         savedChaptersAndVerses = new SavedChaptersAndVerses();
 
-        progressBar = findViewById(R.id.progress_bar_layout);
+        progressBarLayout = findViewById(R.id.progress_bar_layout);
 
         sharedPreferences = getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         databaseStatus = sharedPreferences.getInt("DATABASE", 0);
 
         ArrayAdapter adapter = new ArrayAdapter(this, R.layout.books_list_view, oldNewAll );
-        ListView listView = findViewById(R.id.books_list);
-        listView.setVisibility(View.VISIBLE);
+        listView = findViewById(R.id.books_list);
+        //listView.setVisibility(View.VISIBLE);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

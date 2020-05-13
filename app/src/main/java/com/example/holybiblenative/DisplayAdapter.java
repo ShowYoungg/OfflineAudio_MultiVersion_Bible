@@ -9,25 +9,35 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 
-public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSpeech.OnInitListener {
+public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSpeech.OnInitListener, Filterable {
     private ArrayList<DataObject> dataObjects;
+    private ArrayList<DataObject> dataObjects2;
     private String[] strings;
     private String contents;
     private TextToSpeech textToSpeech;
 
 
-    public DisplayAdapter(Context context, ArrayList<DataObject> keys, String contents) {
+    public DisplayAdapter(Context context, ArrayList<DataObject> keys, String contents, TextToSpeech textToSpeech) {
         super(context, 0, keys);
         this.contents = contents;
+        this.textToSpeech = textToSpeech;
+        dataObjects = keys;
+        if (dataObjects != null){
+            dataObjects2 = new ArrayList<>(dataObjects);
+        }
     }
 
     @Override
@@ -42,7 +52,7 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
         final ImageView audio = convertView.findViewById(R.id.audio1);
         String text;
 
-        textToSpeech = new TextToSpeech(getContext(), this, "com.google.android.tts");
+        //textToSpeech = new TextToSpeech(getContext(), this, "com.google.android.tts");
         textToSpeech.setLanguage(Locale.ENGLISH);
 
         if (k != null){
@@ -145,4 +155,37 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
             textToSpeech.setSpeechRate(0.8f);
         }
     }
+
+    @Override
+    public Filter getFilter() {
+        return exampleFilter;
+    }
+
+    private Filter exampleFilter= new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            ArrayList<DataObject> filteredList = new ArrayList<>();
+            if (constraint == null || constraint.length() == 0) {
+                filteredList.addAll(dataObjects2);
+            } else {
+                String filterPattern = constraint.toString().toLowerCase().trim();
+                for (DataObject t : dataObjects2) {
+                    if (t.getContent().toLowerCase().contains(filterPattern)) {
+                        filteredList.add(t);
+                    }
+                }
+            }
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            dataObjects.clear();
+            dataObjects.addAll((List) results.values);
+            notifyDataSetChanged();
+        }
+    };
+
 }

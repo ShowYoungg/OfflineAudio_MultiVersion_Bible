@@ -1,8 +1,10 @@
 package com.example.holybiblenative;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.app.NavUtils;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -14,14 +16,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
-public class TestamentsActivity extends AppCompatActivity {
+public class TestamentsActivity extends AppCompatActivity{
 
     private AppDatabase mDb;
     private ArrayList<DataObject> dl;
@@ -29,6 +34,7 @@ public class TestamentsActivity extends AppCompatActivity {
     private String[] books;
     private Integer[] chapters;
     private boolean twoPane = false;
+    private String[] all2;
 
     private String[] all = {"Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
             "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings",
@@ -63,50 +69,14 @@ public class TestamentsActivity extends AppCompatActivity {
             "Titus", "Philemon", "Hebrews", "James", "1 Peter", "2 Peter",
             "1 John", "2 John", "3 John", "Jude", "Revelation"};
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.version_menus, menu);
-
-        //Associate searchable configuration with the SearchView
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.search_bar).getActionView();
-        if (searchManager != null) {
-            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        }
-        return true;
-    }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        handleIntent(intent);
-    }
-
-    private void handleIntent(Intent intent){
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())){
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            //Use the query to search your data somehow
-            Log.i("SEARCH_QUERY", "Weeee");
-            if (query != null) {
-                if (query.equals("")){
-                    Toast.makeText(this, "No match found", Toast.LENGTH_SHORT).show();
-                } else {
-                    String[] ss = new String[books.length-1];
-                    for (String s: books) {
-                        if (s.equals(query) || s.startsWith(query)){
-                            ss[0] = s;
-                        }
-                        books = ss;
-                    }
-                }
-            }
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            NavUtils.navigateUpFromSameTask(this);
         }
-        //finish();
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -114,8 +84,14 @@ public class TestamentsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_testaments);
 
+        ActionBar actionBar = this.getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
         dl = new ArrayList<>();
         mDb = AppDatabase.getInstance(this);
+        all2 = all;
 
         if (findViewById(R.id.books_list2_600) != null){
             twoPane = true;
@@ -133,10 +109,7 @@ public class TestamentsActivity extends AppCompatActivity {
                 books = newTestament;
                 chapters = newChapters;
             }
-
-            handleIntent(getIntent());
         }
-
         displayBooks();
     }
 
