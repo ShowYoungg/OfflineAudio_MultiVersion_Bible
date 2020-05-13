@@ -38,6 +38,6 @@ public class DatabaseLiveData extends LiveData<ArrayList<DataObject>> {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        DisplayActivity.bindView(context,dataObjects);
+        //DisplayActivity.bindView(context,dataObjects);
     }
 }

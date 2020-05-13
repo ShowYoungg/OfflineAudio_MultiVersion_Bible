@@ -36,7 +36,7 @@ public class ChaptersActivity extends AppCompatActivity {
         if (getIntent() != null){
             //testament = getIntent().getIntExtra("Testament", 0);
             database_toUse = getIntent().getStringExtra("DATABASE_TO_USE");
-            books = getIntent().getStringExtra("Position");
+            books = getIntent().getStringExtra("Book");
             numberOfChapters = getIntent().getIntExtra("Number of Chapters", 0);
             Log.i("POSITION", books);
 
@@ -45,6 +45,7 @@ public class ChaptersActivity extends AppCompatActivity {
                 c[i] = "Chapter " + (i + 1);
             }
         }
+
 
         ArrayAdapter adapter = new ArrayAdapter(this, R.layout.books_list_view, c );
         ListView listView = findViewById(R.id.books_list3);
@@ -56,8 +57,8 @@ public class ChaptersActivity extends AppCompatActivity {
                 Intent intent = new Intent(ChaptersActivity.this,
                         DisplayActivity.class).putExtra("Book", books)
                         .putExtra("Chapter", position + 1)
-                        .putExtra("DATABASE_TO_USE", database_toUse);
-                        //.putExtra("Number of Chapters", numberOfChapters);
+                        .putExtra("DATABASE_TO_USE", database_toUse)
+                        .putExtra("Number of Chapters", numberOfChapters);
                 startActivity(intent);
             }
         });

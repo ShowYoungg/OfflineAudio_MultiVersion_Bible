@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -27,6 +28,7 @@ public class TestamentsActivity extends AppCompatActivity {
     private int testament;
     private String[] books;
     private Integer[] chapters;
+    private boolean twoPane = false;
 
     private String[] all = {"Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
             "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings",
@@ -115,6 +117,10 @@ public class TestamentsActivity extends AppCompatActivity {
         dl = new ArrayList<>();
         mDb = AppDatabase.getInstance(this);
 
+        if (findViewById(R.id.books_list2_600) != null){
+            twoPane = true;
+        }
+
         if (getIntent() != null){
             testament = getIntent().getIntExtra("Position", 0);
             if (testament == 0){
@@ -136,19 +142,34 @@ public class TestamentsActivity extends AppCompatActivity {
 
     private void displayBooks() {
         ArrayAdapter adapter = new ArrayAdapter(this, R.layout.books_list_view, books );
-        ListView listView = findViewById(R.id.books_list2);
-        listView.setAdapter(adapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //confirmDb(books[position]);
-                Intent intent = new Intent(TestamentsActivity.this,
-                        ChaptersActivity.class).putExtra("DATABASE_TO_USE", confirmDb(books[position]))
-                        .putExtra("Position", books[position])
-                        .putExtra("Number of Chapters", chapters[position]);
-                startActivity(intent);
-//                Toast.makeText(TestamentsActivity.this, books[position], Toast.LENGTH_SHORT).show();
+        if (twoPane){
+            GridView gridView = findViewById(R.id.books_list2_600);
+            gridView.setAdapter(adapter);
+            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Intent intent = new Intent(TestamentsActivity.this,
+                            DisplayActivity.class).putExtra("DATABASE_TO_USE", confirmDb(books[position]))
+                            .putExtra("Book", books[position])
+                            .putExtra("Number of Chapters", chapters[position]);
+                    startActivity(intent);
+                }
+            });
+        } else {
+            ListView listView = findViewById(R.id.books_list2);
+            listView.setAdapter(adapter);
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Intent intent = new Intent(TestamentsActivity.this,
+                            ChaptersActivity.class).putExtra("DATABASE_TO_USE", confirmDb(books[position]))
+                            .putExtra("Book", books[position])
+                            .putExtra("Number of Chapters", chapters[position]);
+                    startActivity(intent);
+                    Toast.makeText(TestamentsActivity.this, books[position], Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
 //                AppExecutors.getInstance().diskIO().execute(new Runnable() {
 //                    @Override
 //                    public void run() {
@@ -170,8 +191,6 @@ public class TestamentsActivity extends AppCompatActivity {
 //                    }
 //                });
 
-            }
-        });
     }
 
     private String database_toUse;

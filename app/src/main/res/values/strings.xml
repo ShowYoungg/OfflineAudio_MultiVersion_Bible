@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">HolyBibleNative</string>
+    <string name="title_activity_bottom_navigation">BottomNavigation</string>
+    <string name="title_home">Home</string>
+    <string name="title_back">Back</string>
+    <string name="title_next">Next</string>
 </resources>

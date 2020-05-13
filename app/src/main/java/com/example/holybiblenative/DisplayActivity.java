@@ -2,8 +2,11 @@ package com.example.holybiblenative;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.app.NavUtils;
+import androidx.fragment.app.FragmentManager;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -11,32 +14,42 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.Voice;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
-public class DisplayActivity extends AppCompatActivity {
+public class DisplayActivity extends AppCompatActivity implements TextToSpeech.OnInitListener,
+        BibleFragment.OnChapterClickListener {
 
     public static ListView displayList;
     public static DisplayAdapter displayAdapter;
     public static ArrayList<DataObject> dataObjectsList;
     public ArrayList<DataObject> dataObjectArrayList;
     private DataObject dataObject;
-    public static String content;
-    public static String book;
-    public static String que;
+    public String content;
+    public String book;
+    public String que;
     private String dbName, database_toUse;
-    public static int chapter;
-    public static int verse;
+    public int chapter;
+    public int verse;
+    private int number_of_chapters;
+    private boolean twoPane = false;
 
+    private TextToSpeech textToSpeech;
     private SharedPreferences sharedPreferences;
-    private DataViewModel dataViewModel;
 
-    private static String SHARED_PREFERENCE_NAME = "SEARCH";
+    private String SHARED_PREFERENCE_NAME = "SEARCH";
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -56,6 +69,11 @@ public class DisplayActivity extends AppCompatActivity {
         dataObjectArrayList.clear();
 
         switch (item.getItemId()){
+            //Navigation through action bar
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+
             case R.id.akjv:
                 //
                 content = "field13";
@@ -125,16 +143,21 @@ public class DisplayActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
+        if (number_of_chapters == 0){
+            content = "field5";
+            book = sharedPreferences.getString("Book", "Genesis.db");
+            chapter = sharedPreferences.getInt("Chapter", 0);
+            database_toUse = sharedPreferences.getString("DATATOUSE", book + ".db");
+            number_of_chapters = sharedPreferences.getInt("Number of Chapters", 0);
+        }
     }
 
-//
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
         dataObjectArrayList = savedInstanceState.getParcelableArrayList("LIST");
-        displayAdapter = new DisplayAdapter(getApplicationContext(), dataObjectArrayList);
+        displayAdapter = new DisplayAdapter(getApplicationContext(), dataObjectArrayList, content);
         displayList.setAdapter(displayAdapter);
     }
 
@@ -154,13 +177,15 @@ public class DisplayActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
 
+        ActionBar actionBar = this.getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+
         sharedPreferences = getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE);
-        final TextToSpeech textToSpeech = new TextToSpeech(getApplicationContext(), (TextToSpeech.OnInitListener) this);
+        textToSpeech = new TextToSpeech(getApplicationContext(), this, "com.google.android.tts");
         textToSpeech.setLanguage(Locale.ENGLISH);
-        textToSpeech.setPitch(0.8f);
-        textToSpeech.setSpeechRate(1.1f);
-
-
 
         dataObject = new DataObject();
         dataObjectArrayList = new ArrayList<>();
@@ -168,55 +193,87 @@ public class DisplayActivity extends AppCompatActivity {
         content = "field5";
 
         displayList =findViewById(R.id.display_chapters);
+        final BottomNavigationView bottomNavigationView = findViewById(R.id.nav_view);
+        bottomNavigationView.setOnNavigationItemSelectedListener(getmNavigate());
+
+        if (findViewById(R.id.bible_frag) != null){
+            twoPane = true;
+        }
 
         if (savedInstanceState == null){
 
             if(getIntent() != null && getIntent().hasExtra("Book")){
                 book = getIntent().getStringExtra("Book");
-                chapter = getIntent().getIntExtra("Chapter", 1);
+                if (!twoPane){
+                    chapter = getIntent().getIntExtra("Chapter", 1);
+                } else {
+                    chapter = 1;
+                }
                 database_toUse = getIntent().getStringExtra("DATABASE_TO_USE");
+                number_of_chapters = getIntent().getIntExtra("Number of Chapters", 0);
                 verse = 1;
+                Bundle b = new Bundle();
+                b.putInt("Number of Chapters", number_of_chapters);
+
+                if (twoPane){
+                    BibleFragment bibleFragment = new BibleFragment();
+                    bibleFragment.setArguments(b);
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.bible_frag, bibleFragment).commit();
+                }
 
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putInt("Chapter", chapter);
                 editor.putString("Book", book);
                 editor.putString("DATATOUSE", database_toUse);
+                editor.putInt("Number of Chapters", number_of_chapters);
                 editor.apply();
             }
 
             if (Intent.ACTION_SEARCH.equals(getIntent().getAction())){
                 handleIntent(getIntent());
+                bottomNavigationView.setVisibility(View.GONE);
             } else {
                 loadData(content, book, chapter, verse, "");
             }
         }
     }
 
-//    private void loadObservableData() {
-//        dataViewModel.getData().observe(this, new Observer<ArrayList<DataObject>>() {
-//            @Override
-//            public void onChanged(@Nullable final ArrayList<DataObject> dat) {
-//
-//                if (dat != null){
-//                    dataObjectsList = dat;
-//                    String s = dat.get(0).getContent();
-//                    Log.i("ONCHANGED", s);
-//
-//                    displayAdapter = new DisplayAdapter(getApplicationContext(), dat);
-//                    displayList =findViewById(R.id.display_chapters);
-//                    displayList.setAdapter(displayAdapter);
-//                }
-//                //displayAdapter.notifyDataSetChanged();
-//                displayAdapter.setData(dataObjectsList);
-//            }
-//        });
-//    }
+    public BottomNavigationView.OnNavigationItemSelectedListener getmNavigate(){
+        return new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                switch (menuItem.getItemId()){
+                    case R.id.navigation_left:
+                        //
+                        if (chapter == 1){
+                            Toast.makeText(DisplayActivity.this, "Move to the next chapter", Toast.LENGTH_SHORT).show();
+                        } else {
+                            chapter -=1;
+                            loadData(content, book, chapter, verse, "");
+                        }
+                        return true;
 
-    public static void bindView(Context context, ArrayList<DataObject> dataObjectsList){
-        displayAdapter = new DisplayAdapter(context, dataObjectsList);
-        //displayList =findViewById(R.id.display_chapters);
-        displayList.setAdapter(displayAdapter);
-        displayAdapter.setData(dataObjectsList);
+                    case R.id.navigation_home:
+                        //
+                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                        finish();
+                        return true;
+
+                    case R.id.navigation_right:
+                        //
+                        if (chapter == number_of_chapters){
+                            Toast.makeText(DisplayActivity.this, "Move to the previous chapter", Toast.LENGTH_SHORT).show();
+                        } else {
+                            chapter +=1;
+                            loadData(content, book, chapter, verse, "");
+                        }
+                        return true;
+                }
+                return false;
+            }
+        };
     }
 
     private void loadData(String content, String book, int chapter, int verse, String query) {
@@ -226,7 +283,6 @@ public class DisplayActivity extends AppCompatActivity {
         }
         que = query;
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
             public void run() {
                 if (database_toUse.equals("OldTestament.db")){
                     dbName = "OldTestament.db";
@@ -256,7 +312,7 @@ public class DisplayActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        displayAdapter = new DisplayAdapter(this, dataObjectArrayList);
+        displayAdapter = new DisplayAdapter(this, dataObjectArrayList, content);
         displayList.setAdapter(displayAdapter);
     }
 
@@ -282,5 +338,41 @@ public class DisplayActivity extends AppCompatActivity {
 
             loadData(content, book, chapter, verse, query);
         }
+    }
+
+    @Override
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS){
+            Set<String> a=new HashSet<>();
+            a.add("male");//here you can give male if you want to select male voice.
+            Voice v=new Voice("en-us-x-sfg#male_2-local",new Locale("en","US"),
+                    400,200,true,a);
+            textToSpeech.setPitch(0.8f);
+            textToSpeech.setVoice(v);
+            textToSpeech.setSpeechRate(0.8f);
+        }
+
+        String sv = textToSpeech.getVoice().getName();
+        Log.i("TEXT_TO_SPEECH", sv);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (textToSpeech != null){
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    public void onStepListSelected(int chapter) {
+        this.chapter = chapter;
+        loadData(content, book, chapter, verse, "");
     }
 }
