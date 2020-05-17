@@ -27,17 +27,27 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
     private ArrayList<DataObject> dataObjects2;
     private String[] strings;
     private String contents;
+    private boolean positionStatus = false;
+    private boolean bottom = false;
     private TextToSpeech textToSpeech;
 
 
-    public DisplayAdapter(Context context, ArrayList<DataObject> keys, String contents, TextToSpeech textToSpeech) {
+    public DisplayAdapter(Context context, ArrayList<DataObject> keys, String contents) {
         super(context, 0, keys);
         this.contents = contents;
-        this.textToSpeech = textToSpeech;
+        //this.textToSpeech = textToSpeech;
         dataObjects = keys;
         if (dataObjects != null){
             dataObjects2 = new ArrayList<>(dataObjects);
         }
+    }
+
+    public boolean onBottomReached(){
+        return bottom;
+    }
+
+    public boolean isDisplayed(){
+        return positionStatus;
     }
 
     @Override
@@ -47,12 +57,15 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.display_list, parent, false);
         }
 
+        if (position == 1) positionStatus = true;
+        if (position == dataObjects.size() - 1) bottom = true;
+
         final TextView title = convertView.findViewById(R.id.chapter_verse);
         final TextView content = convertView.findViewById(R.id.display_content);
         final ImageView audio = convertView.findViewById(R.id.audio1);
         String text;
 
-        //textToSpeech = new TextToSpeech(getContext(), this, "com.google.android.tts");
+        textToSpeech = new TextToSpeech(getContext(), this, "com.google.android.tts");
         textToSpeech.setLanguage(Locale.ENGLISH);
 
         if (k != null){
@@ -120,9 +133,6 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
             audio.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-                    int i = v.getId();
-                    //String s = k.getContent()[i]
                     textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null, null);
                 }
             });
@@ -148,7 +158,7 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
         if (status == TextToSpeech.SUCCESS){
             Set<String> a=new HashSet<>();
             a.add("male");//here you can give male if you want to select male voice.
-            Voice v=new Voice("en-us-x-sfg#male_2-local",new Locale("en","US"),
+            Voice v=new Voice("en-us-x-sfg#male_1-local",new Locale("en","US"),
                     400,200,true,a);
             textToSpeech.setPitch(0.8f);
             textToSpeech.setVoice(v);

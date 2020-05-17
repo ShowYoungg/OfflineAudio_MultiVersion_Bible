@@ -128,7 +128,7 @@ public class Database {
     public ArrayList<DataObject> test2(String version_content, String book,
                                        int chapter, int verse, String query_string){
         ArrayList<DataObject> dataObjectArrayList = new ArrayList<>();
-        //dataObjectArrayList.clear();
+        //objects.clear();
         try{
             String query;
             if (query_string.equals("")){

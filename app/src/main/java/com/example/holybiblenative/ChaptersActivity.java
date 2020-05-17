@@ -8,12 +8,14 @@ import androidx.core.app.NavUtils;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import java.util.ArrayList;
 
 public class ChaptersActivity extends AppCompatActivity {
 
@@ -23,6 +25,10 @@ public class ChaptersActivity extends AppCompatActivity {
     private String[] c;
     private SharedPreferences sharedPreferences;
     private String SHARED_PREFERENCE_NAME = "SEARCH";
+    private Intent intent;
+
+    private String dbName;
+    public static ArrayList<DataObject> objects;
 
 //    Integer[] chapters;
 //    Integer[] allChapters = {50,40,27,36,34,24,21,4,31,24,22,25,29,36,10,13,10,42,150,31,
@@ -78,16 +84,66 @@ public class ChaptersActivity extends AppCompatActivity {
         ListView listView = findViewById(R.id.books_list3);
         listView.setAdapter(adapter);
 
+        intent = new Intent(ChaptersActivity.this,
+                DisplayActivity.class).putExtra("Book", books)
+                .putExtra("DATABASE_TO_USE", database_toUse)
+                .putExtra("Number of Chapters", numberOfChapters);
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(ChaptersActivity.this,
-                        DisplayActivity.class).putExtra("Book", books)
-                        .putExtra("Chapter", position + 1)
-                        .putExtra("DATABASE_TO_USE", database_toUse)
-                        .putExtra("Number of Chapters", numberOfChapters);
+                loadData(position + 1);
+                intent.putExtra("Chapter", position + 1);
+
                 startActivity(intent);
+
+
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        startActivity(new Intent(ChaptersActivity.this, DisplayActivity.class));
+//                    }
+//                }, 100);
+
+
+
+
+//                Intent intent = new Intent(ChaptersActivity.this,
+//                        DisplayActivity.class).putExtra("Book", books)
+//                        .putExtra("Chapter", position + 1)
+//                        .putExtra("DATABASE_TO_USE", database_toUse)
+//                        .putExtra("Number of Chapters", numberOfChapters);
+
+                //startActivity(intent);
             }
         });
+    }
+
+    public ArrayList<DataObject> loadData(int chapter){
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            public void run() {
+                if (database_toUse.equals("OldTestament.db")){
+                    dbName = "OldTestament.db";
+                    Database db = new Database(getApplicationContext(), dbName);
+                    db.open();
+                    objects = db.test2("field5", books, chapter, 1, "");
+                    db.close();
+                } else if (database_toUse.equals("NewTestament.db")){
+                    dbName = "NewTestament.db";
+                    Database db = new Database(getApplicationContext(), dbName);
+                    db.open();
+                    objects = db.test2("field5", books, chapter, 1, "");
+                    db.close();
+
+                } else {
+                    dbName = books + ".db";
+                    Database db = new Database(getApplicationContext(), dbName);
+                    db.open();
+                    objects = db.queryFromDb_byBooks(chapter, "");
+                    db.close();
+                }
+            }
+        });
+        return objects;
     }
 }

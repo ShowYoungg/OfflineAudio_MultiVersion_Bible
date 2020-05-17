@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.NavUtils;
 import androidx.fragment.app.FragmentManager;
 
@@ -12,13 +13,16 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -30,6 +34,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+
+import static com.example.holybiblenative.ChaptersActivity.objects;
 
 public class DisplayActivity extends AppCompatActivity implements TextToSpeech.OnInitListener,
         BibleFragment.OnChapterClickListener {
@@ -48,6 +54,7 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
     private int number_of_chapters;
     private boolean twoPane = false;
     private RelativeLayout progressBarLayout;
+    private ProgressBar progressBar;
 
     private TextToSpeech textToSpeech;
     private SharedPreferences sharedPreferences;
@@ -87,10 +94,15 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         dataObjectArrayList.clear();
 
         switch (item.getItemId()){
-            //Navigation through action bar
+            //Navigation through action bar only if on tablet mode
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
+                if (twoPane){
+                    NavUtils.navigateUpFromSameTask(this);
+                    return true;
+                } else {
+                    onBackPressed();
+                    return true;
+                }
 
             case R.id.akjv:
                 //
@@ -157,6 +169,22 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        final BottomNavigationView bottomNavigationView = findViewById(R.id.nav_view);
+        bottomNavigationView.setOnNavigationItemSelectedListener(getmNavigate());
+
+        // attaching bottom sheet behaviour - hide / show on scroll
+        CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) bottomNavigationView.getLayoutParams();
+        layoutParams.setBehavior(new BottomNavigationBehaviour());
+
+        //monitorBottom(bottomNavigationView);
+
+        textToSpeech = new TextToSpeech(getApplicationContext(), this, "com.google.android.tts");
+        textToSpeech.setLanguage(Locale.ENGLISH);
+    }
 
     @Override
     protected void onResume() {
@@ -176,9 +204,10 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
 
         dataObjectArrayList = savedInstanceState.getParcelableArrayList("LIST");
         
-        if (twoPane) chapter = savedInstanceState.getInt("Chapter");
-
-        displayAdapter = new DisplayAdapter(getApplicationContext(), dataObjectArrayList, content, textToSpeech);
+        //if (twoPane) chapter = savedInstanceState.getInt("Chapter");
+        chapter = savedInstanceState.getInt("Chapter");
+        displayList = findViewById(R.id.display_chapters);
+        displayAdapter = new DisplayAdapter(getApplicationContext(), dataObjectArrayList, content);
         displayList.setAdapter(displayAdapter);
     }
 
@@ -188,11 +217,13 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
 
         if ((displayAdapter.getDataObjects()) != null) {
             savedInstanceState.putParcelableArrayList("LIST", new ArrayList<DataObject>(displayAdapter.getDataObjects()));
-            if (twoPane) savedInstanceState.putInt("Chapter", chapter);
+            //if (twoPane) savedInstanceState.putInt("Chapter", chapter);
+            savedInstanceState.putInt("Chapter", chapter);
 
         } else{
             savedInstanceState.putParcelableArrayList("LIST", new ArrayList<DataObject>(dataObjectArrayList));
-            if (twoPane) savedInstanceState.putInt("Chapter", chapter);
+            //if (twoPane) savedInstanceState.putInt("Chapter", chapter);
+            savedInstanceState.putInt("Chapter", chapter);
         }
     }
 
@@ -206,27 +237,43 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-
         sharedPreferences = getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE);
-        textToSpeech = new TextToSpeech(getApplicationContext(), this, "com.google.android.tts");
-        textToSpeech.setLanguage(Locale.ENGLISH);
 
         dataObject = new DataObject();
         dataObjectArrayList = new ArrayList<>();
         dataObjectsList = new ArrayList<>();
         content = "field5";
 
-        displayList = findViewById(R.id.display_chapters);
         progressBarLayout = findViewById(R.id.layout_progress_bar);
-        //progressBarLayout.setVisibility(View.VISIBLE);
-        final BottomNavigationView bottomNavigationView = findViewById(R.id.nav_view);
-        bottomNavigationView.setOnNavigationItemSelectedListener(getmNavigate());
+        progressBar = findViewById(R.id.progress_bar);
 
         if (findViewById(R.id.bible_frag) != null){
             twoPane = true;
         }
 
         if (savedInstanceState == null){
+
+            if (!twoPane){
+                monitorProgressBar();
+                //This will load static arraylist from previous activity
+                try{
+                    displayList = findViewById(R.id.display_chapters);
+                    displayAdapter = new DisplayAdapter(this, objects, content);
+                    displayList.setAdapter(displayAdapter);
+                } catch (Exception e){
+                    e.printStackTrace();
+                } finally {
+                    //On some devices, it does not get loaded on time, so we need to wait for some milliseconds
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            displayList = findViewById(R.id.display_chapters);
+                            displayAdapter = new DisplayAdapter(getApplicationContext(), objects, content);
+                            displayList.setAdapter(displayAdapter);
+                        }
+                    }, 500);
+                }
+            }
 
             if(getIntent() != null && getIntent().hasExtra("Book")){
                 book = getIntent().getStringExtra("Book");
@@ -239,10 +286,21 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
                 number_of_chapters = getIntent().getIntExtra("Number of Chapters", 0);
                 verse = 1;
 
-                Bundle b = new Bundle();
-                b.putInt("Number of Chapters", number_of_chapters);
-
                 if (twoPane){
+                    displayList = findViewById(R.id.display_chapters);
+                    displayAdapter = new DisplayAdapter(this, objects, content);
+                    monitorProgressBar();
+
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadData(content, book, chapter, verse, "");
+                        }
+                    }, 250);
+
+                    Bundle b = new Bundle();
+                    b.putInt("Number of Chapters", number_of_chapters);
+
                     BibleFragment bibleFragment = new BibleFragment();
                     bibleFragment.setArguments(b);
                     FragmentManager fragmentManager = getSupportFragmentManager();
@@ -258,12 +316,10 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
                 editor.apply();
             }
 
-            if (Intent.ACTION_SEARCH.equals(getIntent().getAction())){
-                handleIntent(getIntent());
-                bottomNavigationView.setVisibility(View.GONE);
-            } else {
-                loadData(content, book, chapter, verse, "");
-            }
+        } else {
+            progressBar.setVisibility(View.GONE);
+            progressBarLayout.setVisibility(View.GONE);
+
         }
     }
 
@@ -284,8 +340,8 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
 
                     case R.id.navigation_home:
                         //
-                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                        finish();
+                        startActivity(new Intent(getApplicationContext(), MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                        //finish();
                         return true;
 
                     case R.id.navigation_right:
@@ -304,11 +360,11 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
     }
 
     private void loadData(String content, String book, int chapter, int verse, String query) {
-        progressBarLayout.setVisibility(View.VISIBLE);
         if (dataObjectArrayList.size() >= 1){
             dataObjectArrayList.clear();
             dataObjectArrayList = new ArrayList<>();
         }
+
         que = query;
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             public void run() {
@@ -340,46 +396,43 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        displayAdapter = new DisplayAdapter(this, dataObjectArrayList, content, textToSpeech);
+        displayAdapter = new DisplayAdapter(this, dataObjectArrayList, content);
         displayList.setAdapter(displayAdapter);
-        progressBarLayout.setVisibility(View.GONE);
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        handleIntent(intent);
-    }
+    private void monitorProgressBar(){
 
-    private void handleIntent(Intent intent){
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())){
-            //String qs = "'%" + query_string + "%'";
-            //String query = "'%" + intent.getStringExtra(SearchManager.QUERY) + "%'";
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            //Use the query to search your data somehow
-            Log.i("SEARCH_QUERY", query);
-
-            content = "field5";
-            book = sharedPreferences.getString("Book", "Genesis.db");
-            chapter = sharedPreferences.getInt("Chapter", 0);
-            database_toUse = sharedPreferences.getString("DATATOUSE", book + ".db");
-            verse = 1;
-
-            loadData(content, book, chapter, verse, query);
-
-            Bundle b = new Bundle();
-            b.putInt("Number of Chapters", number_of_chapters);
-
-            if (twoPane){
-                BibleFragment bibleFragment = new BibleFragment();
-                bibleFragment.setArguments(b);
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                fragmentManager.beginTransaction()
-                        .replace(R.id.bible_frag, bibleFragment).commit();
+        progressBarLayout.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (displayAdapter.isDisplayed()){
+                    progressBarLayout.setVisibility(View.GONE);
+                    progressBar.setVisibility(View.GONE);
+                    return;
+                } else {
+                    monitorProgressBar();
+                }
             }
-
-        }
+        }, 100);
     }
+
+    private void monitorBottom(BottomNavigationView bmv){
+        bmv.setVisibility(View.VISIBLE);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (displayAdapter.onBottomReached()){
+                    bmv.setVisibility(View.GONE);
+                    //return;
+                } else {
+                    monitorBottom(bmv);
+                }
+            }
+        }, 100);
+    }
+
 
     @Override
     public void onInit(int status) {
@@ -402,7 +455,6 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         super.onPause();
         if (textToSpeech != null){
             textToSpeech.stop();
-            //textToSpeech.shutdown();
         }
     }
 
