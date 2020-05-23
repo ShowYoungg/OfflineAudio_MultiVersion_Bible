@@ -1,6 +1,9 @@
 package com.example.holybiblenative;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,7 +37,9 @@ public class MainActivity extends AppCompatActivity {
     private String dbName;
     private int databaseStatus;
     private ListView listView;
+
     public static final String SHARED_PREFERENCE_NAME = "Database";
+    public static List<DataObject> savedVerses;
 
 
     private String[] all = {"Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
@@ -47,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
             "1 Timothy", "2 Timothy", "Titus", "Philemon", "Hebrews", "James", "1 Peter", "2 Peter",
             "1 John", "2 John", "3 John", "Jude", "Revelation"};
 
-    private String[] oldNewAll = {"All Books", "Old Testament", "New Testament"};
+    private String[] oldNewAll = {"All Books", "Old Testament", "New Testament", "Saved Verses"};
     private String welcomeWord = "For God so love the world that he gave his only Begotten Son" +
             " that whosoever believe in him shall have not perish but have everlasting life";
 
@@ -69,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
             copyAllBooks();
         } else {
             Log.i("DatabaseStatus", "books already copied");
+            loadSavedVerses();
         }
     }
 
@@ -123,9 +130,15 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(MainActivity.this,
-                        TestamentsActivity.class).putExtra("Position", position);
-                startActivity(intent);
+                if (position == 3){
+                    Intent intent = new Intent(MainActivity.this,
+                            DisplayActivity.class).putExtra("Position", position);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(MainActivity.this,
+                            TestamentsActivity.class).putExtra("Position", position);
+                    startActivity(intent);
+                }
             }
         });
     }
@@ -198,5 +211,19 @@ public class MainActivity extends AppCompatActivity {
             editor.putInt("DATABASE", 1);
             editor.apply();
         }
+    }
+
+    private void loadSavedVerses() {
+        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        viewModel.getDataObj().observe(this, new Observer<List<DataObject>>() {
+            @Override
+            public void onChanged(@Nullable List<DataObject> dataObjects) {
+                //savedVerses = new ArrayList<>();
+                if (dataObjects != null){
+                    Toast.makeText(MainActivity.this, dataObjects.get(0).getBooks(), Toast.LENGTH_SHORT).show();
+                    savedVerses = dataObjects;
+                }
+            }
+        });
     }
 }

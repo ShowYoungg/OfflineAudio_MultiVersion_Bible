@@ -6,11 +6,13 @@
         android:id="@+id/search_bar"
         android:title="Search"
         android:icon="@drawable/ic_action_name"
+        android:iconTint="@color/colorAccent"
         app:showAsAction="always"
         app:actionViewClass="androidx.appcompat.widget.SearchView"/>
 
     <item android:id="@+id/kjv"
-        android:title="King James Version" />
+        android:title="King James Version"
+        android:iconTint="#D81B60"/>
 
     <item android:id="@+id/asv"
         android:title="American Standard Version"/>

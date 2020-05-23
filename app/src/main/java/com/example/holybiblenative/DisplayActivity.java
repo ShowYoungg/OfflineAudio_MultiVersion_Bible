@@ -8,11 +8,15 @@ import androidx.appcompat.widget.SearchView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.NavUtils;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +27,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -32,6 +38,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -68,6 +75,8 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         //Associate searchable configuration with the SearchView
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.search_bar).getActionView();
+        ImageView imageView = searchView.findViewById(androidx.appcompat.R.id.search_button);
+        imageView.setColorFilter(getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_IN);
         searchView.setQueryHint("Search by words");
         searchView.setSubmitButtonEnabled(false);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -82,10 +91,6 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
                 return false;
             }
         });
-
-//        if (searchManager != null) {
-//            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-//        }
         return true;
     }
 
@@ -176,11 +181,24 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         final BottomNavigationView bottomNavigationView = findViewById(R.id.nav_view);
         bottomNavigationView.setOnNavigationItemSelectedListener(getmNavigate());
 
-        // attaching bottom sheet behaviour - hide / show on scroll
-        CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) bottomNavigationView.getLayoutParams();
-        layoutParams.setBehavior(new BottomNavigationBehaviour());
+        displayList.setOnScrollListener(new AbsListView.OnScrollListener() {
+            int lastScrollVisibleItem;
+            int lastScrollItem;
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                if (scrollState == SCROLL_STATE_IDLE && lastScrollVisibleItem == lastScrollItem ) {
+                    bottomNavigationView.setVisibility(View.GONE);
+                } else if(scrollState == SCROLL_STATE_FLING || scrollState == SCROLL_STATE_TOUCH_SCROLL) {
+                    bottomNavigationView.setVisibility(View.VISIBLE);
+                }
+            }
 
-        //monitorBottom(bottomNavigationView);
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                lastScrollVisibleItem = view.getLastVisiblePosition();
+                lastScrollItem = totalItemCount - 1;
+            }
+        });
 
         textToSpeech = new TextToSpeech(getApplicationContext(), this, "com.google.android.tts");
         textToSpeech.setLanguage(Locale.ENGLISH);
@@ -244,6 +262,7 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         dataObjectsList = new ArrayList<>();
         content = "field5";
 
+        displayList = findViewById(R.id.display_chapters);
         progressBarLayout = findViewById(R.id.layout_progress_bar);
         progressBar = findViewById(R.id.progress_bar);
 
@@ -252,6 +271,20 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         }
 
         if (savedInstanceState == null){
+
+            if (getIntent() != null && getIntent().hasExtra("Position")){
+                loadSavedVerses();
+                final BottomNavigationView bottomNavigationView = findViewById(R.id.nav_view);
+                progressBarLayout.setVisibility(View.GONE);
+                progressBar.setVisibility(View.GONE);
+                bottomNavigationView.setVisibility(View.GONE);
+                if (twoPane){
+                    FrameLayout frameLayout = findViewById(R.id.bible_frag);
+                    frameLayout.setVisibility(View.GONE);
+                }
+
+                return;
+            }
 
             if (!twoPane){
                 monitorProgressBar();
@@ -315,11 +348,9 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
                 editor.putInt("Number of Chapters", number_of_chapters);
                 editor.apply();
             }
-
         } else {
             progressBar.setVisibility(View.GONE);
             progressBarLayout.setVisibility(View.GONE);
-
         }
     }
 
@@ -418,21 +449,23 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         }, 100);
     }
 
-    private void monitorBottom(BottomNavigationView bmv){
-        bmv.setVisibility(View.VISIBLE);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (displayAdapter.onBottomReached()){
-                    bmv.setVisibility(View.GONE);
-                    //return;
-                } else {
-                    monitorBottom(bmv);
-                }
-            }
-        }, 100);
-    }
 
+    public void loadSavedVerses(){
+        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        viewModel.getDataObj().observe(this, new Observer<List<DataObject>>() {
+            @Override
+            public void onChanged(@Nullable List<DataObject> dataObjects) {
+                if (dataObjects != null){
+                    displayList = findViewById(R.id.display_chapters);
+                    DisplayAdapter savedVerses = new DisplayAdapter(getApplicationContext(),
+                            (ArrayList<DataObject>)dataObjects, "Saved Verses");
+                    displayList.setAdapter(savedVerses);
+                }
+
+            }
+        });
+
+    }
 
     @Override
     public void onInit(int status) {

@@ -13,6 +13,7 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,6 +21,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+
+import static com.example.holybiblenative.MainActivity.savedVerses;
 
 
 public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSpeech.OnInitListener, Filterable {
@@ -30,11 +33,12 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
     private boolean positionStatus = false;
     private boolean bottom = false;
     private TextToSpeech textToSpeech;
-
+    private AppDatabase mDb;
 
     public DisplayAdapter(Context context, ArrayList<DataObject> keys, String contents) {
         super(context, 0, keys);
         this.contents = contents;
+        mDb = AppDatabase.getInstance(context);
         //this.textToSpeech = textToSpeech;
         dataObjects = keys;
         if (dataObjects != null){
@@ -61,8 +65,10 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
         if (position == dataObjects.size() - 1) bottom = true;
 
         final TextView title = convertView.findViewById(R.id.chapter_verse);
+        final TextView delete = convertView.findViewById(R.id.delete);
         final TextView content = convertView.findViewById(R.id.display_content);
         final ImageView audio = convertView.findViewById(R.id.audio1);
+        final ImageView saveVerse = convertView.findViewById(R.id.save_verse);
         String text;
 
         textToSpeech = new TextToSpeech(getContext(), this, "com.google.android.tts");
@@ -75,6 +81,7 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
                 strings = new String[9];
                 strings = (k.getContent()).split("/");
                 switch (contents){
+
                     case "field6":
                         text = strings[1];
                         //content.setText(strings[1]);
@@ -126,14 +133,52 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
                 }
             } else {
                 text = k.getContent();
+                if (contents.equals("Saved Verses")){
+                    saveVerse.setVisibility(View.GONE);
+                    delete.setVisibility(View.VISIBLE);
+                }
             }
 
             content.setText(text);
+
+            for (DataObject d: savedVerses) {
+                if (d.getBooks().equals(k.getBooks()) && d.getChapter()==k.getChapter() && d.getVerse() == k.getVerse()){
+                    saveVerse.setImageResource(R.drawable.ic_sd_storage_red_24dp);
+                } else {
+                    saveVerse.setImageResource(R.drawable.ic_sd_storage_black_24dp);
+                }
+            }
 
             audio.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     textToSpeech.speak(text, TextToSpeech.QUEUE_ADD, null, null);
+                }
+            });
+
+            saveVerse.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                        public void run() {
+                            DataObject d = new DataObject(k.getId(), k.getBooks(), k.getChapter(), k.getVerse(), text);
+                            mDb.dataDao().insertData(d);
+                        }
+                    });
+                }
+            });
+
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(getContext(), "Here I am", Toast.LENGTH_SHORT).show();
+                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                        public void run() {
+                            DataObject d = new DataObject(k.getId(), k.getBooks(), k.getChapter(), k.getVerse(), text);
+                            mDb.dataDao().deleteData(d);
+                        }
+                    });
+                    //notifyDataSetChanged();
                 }
             });
         }
