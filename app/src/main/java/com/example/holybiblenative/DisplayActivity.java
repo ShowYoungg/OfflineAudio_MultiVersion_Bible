@@ -274,6 +274,7 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
 
         if (savedInstanceState == null){
 
+            //This intent will allow to show saved verses instead of the original view with bottomNavigation
             if (getIntent() != null && getIntent().hasExtra("Position")){
                 loadSavedVerses();
                 final BottomNavigationView bottomNavigationView = findViewById(R.id.nav_view);
@@ -284,6 +285,9 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
                     FrameLayout frameLayout = findViewById(R.id.bible_frag);
                     frameLayout.setVisibility(View.GONE);
                 }
+
+                RelativeLayout relativeLayout = findViewById(R.id.relative);
+                relativeLayout.getLayoutParams().width = RelativeLayout.LayoutParams.MATCH_PARENT;
 
                 return;
             }
