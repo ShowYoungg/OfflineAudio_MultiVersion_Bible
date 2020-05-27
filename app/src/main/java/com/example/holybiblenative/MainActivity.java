@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -36,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<DataObject> dl;
     private String dbName;
     private int databaseStatus;
+    private TextView privacy;
     private ListView listView;
 
     public static final String SHARED_PREFERENCE_NAME = "Database";
@@ -124,8 +127,19 @@ public class MainActivity extends AppCompatActivity {
 
         ArrayAdapter adapter = new ArrayAdapter(this, R.layout.books_list_view, oldNewAll );
         listView = findViewById(R.id.books_list);
+        privacy = findViewById(R.id.privacy_policy);
         //listView.setVisibility(View.VISIBLE);
         listView.setAdapter(adapter);
+
+        privacy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String url = "http://htmlpreview.github.io/?https://github.com/ShowYoungg/HolyBibleNative/blob/master/app/privacy_policy.html";
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
+            }
+        });
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
