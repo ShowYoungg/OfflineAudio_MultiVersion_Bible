@@ -194,7 +194,7 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
                             DataObject ds = savedVerses.get(i);
                             if (ds.getBooks().equals(k.getBooks()) && ds.getChapter() == k.getChapter()
                                     && ds.getVerse() == k.getVerse()){
-                                //savedVerses.remove(i--);
+                                savedVerses.remove(i--);
                             }
                         }
                     } else {
