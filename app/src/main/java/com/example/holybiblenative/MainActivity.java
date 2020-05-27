@@ -220,8 +220,7 @@ public class MainActivity extends AppCompatActivity {
             public void onChanged(@Nullable List<DataObject> dataObjects) {
                 //savedVerses = new ArrayList<>();
                 if (dataObjects != null){
-                    Toast.makeText(MainActivity.this, dataObjects.get(0).getBooks(), Toast.LENGTH_SHORT).show();
-                    savedVerses = dataObjects;
+                    savedVerses = new ArrayList<>(dataObjects);
                 }
             }
         });

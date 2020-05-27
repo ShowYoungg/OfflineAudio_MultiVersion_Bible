@@ -65,6 +65,7 @@ public class Database {
                     dataObject.setChapter(chapter);
                     dataObject.setVerse(verse);
                     dataObject.setContent(content);
+                    dataObject.setSelected(false);
                     dList.add(dataObject);
                     Log.i("DB_QUERY", dataObject.getContent());
 //                    Log.i("DB_QUERY", sss[1] + "/" + sss.length);
@@ -114,6 +115,7 @@ public class Database {
                     dataObject.setVerse(verse);
                     dataObject.setContent(content);
                     dataObject.setId(id);
+                    dataObject.setSelected(false);
 
                     dataObjectArrayList.add(dataObject);
                 }while (cursor.moveToNext());
@@ -159,6 +161,7 @@ public class Database {
                     dataObject.setVerse(value3);
                     dataObject.setContent(value);
                     dataObject.setId(value4);
+                    dataObject.setSelected(false);
                     dataObjectArrayList.add(dataObject);
 
                     Log.d("DATABASE_QUERY2", value1 + " " +

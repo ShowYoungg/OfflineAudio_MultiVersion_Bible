@@ -15,7 +15,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
  * Created by SHOW on 8/24/2018.
  */
 
-@Database(entities = {DataObject.class}, version = 1, exportSchema = false)
+@Database(entities = {DataObject.class}, version = 2, exportSchema = false)
 //@TypeConverter(ArrayListConverter.class)
 public abstract class AppDatabase extends RoomDatabase {
 

@@ -1,6 +1,8 @@
 package com.example.holybiblenative;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeechService;
 import android.speech.tts.Voice;
@@ -22,6 +24,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+
 import static com.example.holybiblenative.MainActivity.savedVerses;
 
 
@@ -34,12 +41,17 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
     private boolean bottom = false;
     private TextToSpeech textToSpeech;
     private AppDatabase mDb;
+    private Context context;
+
+    private ArrayList<Boolean> sa;
+
 
     public DisplayAdapter(Context context, ArrayList<DataObject> keys, String contents) {
         super(context, 0, keys);
+        this.context = context;
         this.contents = contents;
         mDb = AppDatabase.getInstance(context);
-        //this.textToSpeech = textToSpeech;
+
         dataObjects = keys;
         if (dataObjects != null){
             dataObjects2 = new ArrayList<>(dataObjects);
@@ -57,6 +69,8 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
         final DataObject k = getItem(position);
+
+
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.display_list, parent, false);
         }
@@ -141,11 +155,24 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
 
             content.setText(text);
 
+            if (k.isSelected()){
+                saveVerse.setImageResource(R.drawable.ic_sd_storage_red_24dp);
+//                saveVerse.setOnClickListener(new View.OnClickListener() {
+//                    DataObject d = new DataObject(k.getId(), k.getBooks(), k.getChapter(), k.getVerse(), text, false);
+//                    @Override
+//                    public void onClick(View v) {
+//                        saveVerse.setImageResource(R.drawable.ic_sd_storage_black_24dp);
+//                        deleteAlert(d, mDb, v);
+//                    }
+//                });
+            } else {
+                saveVerse.setImageResource(R.drawable.ic_sd_storage_black_24dp);
+            }
+
             for (DataObject d: savedVerses) {
                 if (d.getBooks().equals(k.getBooks()) && d.getChapter()==k.getChapter() && d.getVerse() == k.getVerse()){
-                    saveVerse.setImageResource(R.drawable.ic_sd_storage_red_24dp);
-                } else {
-                    saveVerse.setImageResource(R.drawable.ic_sd_storage_black_24dp);
+                    //saveVerse.setImageResource(R.drawable.ic_sd_storage_red_24dp);
+                    dataObjects.get(position).setSelected(true);
                 }
             }
 
@@ -159,26 +186,35 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
             saveVerse.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                        public void run() {
-                            DataObject d = new DataObject(k.getId(), k.getBooks(), k.getChapter(), k.getVerse(), text);
-                            mDb.dataDao().insertData(d);
+                    if (dataObjects.get(position).isSelected()){
+                        DataObject d = new DataObject(k.getId(), k.getBooks(), k.getChapter(), k.getVerse(), text, false);
+                        deleteAlert(d, position, mDb, v, saveVerse);
+
+                        for (int i = 0; i<= savedVerses.size()-1; i++) {
+                            DataObject ds = savedVerses.get(i);
+                            if (ds.getBooks().equals(k.getBooks()) && ds.getChapter() == k.getChapter()
+                                    && ds.getVerse() == k.getVerse()){
+                                savedVerses.remove(i--);
+                            }
                         }
-                    });
+                    } else {
+                        saveVerse.setImageResource(R.drawable.ic_sd_storage_red_24dp);
+                        dataObjects.get(position).setSelected(true);
+                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                            public void run() {
+                                DataObject d = new DataObject(k.getId(), k.getBooks(), k.getChapter(), k.getVerse(), text, true);
+                                mDb.dataDao().insertData(d);
+                            }
+                        });
+                    }
                 }
             });
 
             delete.setOnClickListener(new View.OnClickListener() {
+                DataObject d = new DataObject(k.getId(), k.getBooks(), k.getChapter(), k.getVerse(), text, false);
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(getContext(), "Here I am", Toast.LENGTH_SHORT).show();
-                    AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                        public void run() {
-                            DataObject d = new DataObject(k.getId(), k.getBooks(), k.getChapter(), k.getVerse(), text);
-                            mDb.dataDao().deleteData(d);
-                        }
-                    });
-                    //notifyDataSetChanged();
+                    deleteAlert(d, -1, mDb, v, saveVerse);
                 }
             });
         }
@@ -196,6 +232,37 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
         return dataObjects;
     }
 
+    public void deleteAlert(DataObject d, int position, AppDatabase mDb, View view, ImageView saveVerse){
+        AlertDialog.Builder builder = new AlertDialog.Builder(view.getRootView().getContext());
+        builder.setMessage("Do you want to delete this verse?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (saveVerse != null && position != -1){
+                            saveVerse.setImageResource(R.drawable.ic_sd_storage_black_24dp);
+                            dataObjects.get(position).setSelected(false);
+                        }
+                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                            public void run() {
+                                mDb.dataDao().deleteData(d);
+
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.setTitle("Delete Verse");
+        alertDialog.show();
+    }
+    
 
     @Override
     public void onInit(int status) {
@@ -242,5 +309,4 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
             notifyDataSetChanged();
         }
     };
-
 }

@@ -21,6 +21,7 @@ public class DataObject implements Parcelable {
     private int chapter;
     private int verse;
     private String content;
+    private boolean isSelected;
 
     @Ignore
     public DataObject() {
@@ -29,16 +30,52 @@ public class DataObject implements Parcelable {
         this.chapter = chapter;
         this.verse = verse;
         this.content = content;
+        this.isSelected = isSelected;
     }
 
     public DataObject(int id, String books, int chapter,
-                      int verse, String content) {
+                      int verse, String content, boolean isSelected) {
         this.id = id;
         this.books = books;
         this.chapter = chapter;
         this.verse = verse;
         this.content = content;
+        this.isSelected = isSelected;
     }
+
+//    protected DataObject(Parcel in) {
+//        id = in.readInt();
+//        books = in.readString();
+//        chapter = in.readInt();
+//        verse = in.readInt();
+//        content = in.readString();
+//    }
+//
+//    @Override
+//    public void writeToParcel(Parcel dest, int flags) {
+//        dest.writeInt(id);
+//        dest.writeString(books);
+//        dest.writeInt(chapter);
+//        dest.writeInt(verse);
+//        dest.writeString(content);
+//    }
+//
+//    @Override
+//    public int describeContents() {
+//        return 0;
+//    }
+//
+//    public static final Creator<DataObject> CREATOR = new Creator<DataObject>() {
+//        @Override
+//        public DataObject createFromParcel(Parcel in) {
+//            return new DataObject(in);
+//        }
+//
+//        @Override
+//        public DataObject[] newArray(int size) {
+//            return new DataObject[size];
+//        }
+//    };
 
     protected DataObject(Parcel in) {
         id = in.readInt();
@@ -46,6 +83,7 @@ public class DataObject implements Parcelable {
         chapter = in.readInt();
         verse = in.readInt();
         content = in.readString();
+        isSelected = in.readByte() != 0;
     }
 
     @Override
@@ -55,6 +93,7 @@ public class DataObject implements Parcelable {
         dest.writeInt(chapter);
         dest.writeInt(verse);
         dest.writeString(content);
+        dest.writeByte((byte) (isSelected ? 1 : 0));
     }
 
     @Override
@@ -113,4 +152,14 @@ public class DataObject implements Parcelable {
     public void setContent(String content) {
         this.content = content;
     }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+
 }

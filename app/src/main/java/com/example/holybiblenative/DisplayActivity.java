@@ -3,6 +3,7 @@ package com.example.holybiblenative;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -13,6 +14,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
@@ -102,7 +104,7 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
             //Navigation through action bar only if on tablet mode
             case android.R.id.home:
                 if (twoPane){
-                    NavUtils.navigateUpFromSameTask(this);
+                    NavUtils.navigateUpFromSameTask(DisplayActivity.this);
                     return true;
                 } else {
                     onBackPressed();
@@ -225,7 +227,7 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         //if (twoPane) chapter = savedInstanceState.getInt("Chapter");
         chapter = savedInstanceState.getInt("Chapter");
         displayList = findViewById(R.id.display_chapters);
-        displayAdapter = new DisplayAdapter(getApplicationContext(), dataObjectArrayList, content);
+        displayAdapter = new DisplayAdapter(DisplayActivity.this, dataObjectArrayList, content);
         displayList.setAdapter(displayAdapter);
     }
 
@@ -291,7 +293,7 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
                 //This will load static arraylist from previous activity
                 try{
                     displayList = findViewById(R.id.display_chapters);
-                    displayAdapter = new DisplayAdapter(this, objects, content);
+                    displayAdapter = new DisplayAdapter(DisplayActivity.this, objects, content);
                     displayList.setAdapter(displayAdapter);
                 } catch (Exception e){
                     e.printStackTrace();
@@ -301,7 +303,7 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
                         @Override
                         public void run() {
                             displayList = findViewById(R.id.display_chapters);
-                            displayAdapter = new DisplayAdapter(getApplicationContext(), objects, content);
+                            displayAdapter = new DisplayAdapter(DisplayActivity.this, objects, content);
                             displayList.setAdapter(displayAdapter);
                         }
                     }, 500);
@@ -321,7 +323,7 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
 
                 if (twoPane){
                     displayList = findViewById(R.id.display_chapters);
-                    displayAdapter = new DisplayAdapter(this, objects, content);
+                    displayAdapter = new DisplayAdapter(DisplayActivity.this, objects, content);
                     monitorProgressBar();
 
                     new Handler().postDelayed(new Runnable() {
@@ -427,7 +429,7 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        displayAdapter = new DisplayAdapter(this, dataObjectArrayList, content);
+        displayAdapter = new DisplayAdapter(DisplayActivity.this, dataObjectArrayList, content);
         displayList.setAdapter(displayAdapter);
     }
 
@@ -449,7 +451,6 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         }, 100);
     }
 
-
     public void loadSavedVerses(){
         MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
         viewModel.getDataObj().observe(this, new Observer<List<DataObject>>() {
@@ -466,6 +467,35 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         });
 
     }
+
+    public void deleteAlert(DataObject d, AppDatabase mDb){
+        AlertDialog.Builder builder = new AlertDialog.Builder(DisplayActivity.this);
+        builder.setMessage("Do you want to delete this verse?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                            public void run() {
+                                mDb.dataDao().deleteData(d);
+                            }
+                        });
+
+
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.setTitle("Delete Verse");
+        alertDialog.show();
+    }
+
 
     @Override
     public void onInit(int status) {
