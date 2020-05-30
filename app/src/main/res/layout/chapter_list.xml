@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    android:id="@+id/books"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:text="1"
+    android:textSize="25sp"
+    android:textColor="@color/colorPrimary"
+    android:gravity="center"
+    android:background="@drawable/border"
+    xmlns:android="http://schemas.android.com/apk/res/android" />

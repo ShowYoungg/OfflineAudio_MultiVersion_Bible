@@ -89,6 +89,14 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
         textToSpeech.setLanguage(Locale.ENGLISH);
 
         if (k != null){
+
+            for (DataObject d: savedVerses) {
+                if (d.getBooks().equals(k.getBooks()) && d.getChapter()==k.getChapter() && d.getVerse() == k.getVerse()){
+                    //saveVerse.setImageResource(R.drawable.ic_sd_storage_red_24dp);
+                    dataObjects.get(position).setSelected(true);
+                }
+            }
+
             title.setText(k.getBooks() + " " + k.getChapter() + ":" + k.getVerse());
 
             if(k.getContent().contains("/")){
@@ -157,23 +165,8 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
 
             if (k.isSelected()){
                 saveVerse.setImageResource(R.drawable.ic_sd_storage_red_24dp);
-//                saveVerse.setOnClickListener(new View.OnClickListener() {
-//                    DataObject d = new DataObject(k.getId(), k.getBooks(), k.getChapter(), k.getVerse(), text, false);
-//                    @Override
-//                    public void onClick(View v) {
-//                        saveVerse.setImageResource(R.drawable.ic_sd_storage_black_24dp);
-//                        deleteAlert(d, mDb, v);
-//                    }
-//                });
             } else {
                 saveVerse.setImageResource(R.drawable.ic_sd_storage_black_24dp);
-            }
-
-            for (DataObject d: savedVerses) {
-                if (d.getBooks().equals(k.getBooks()) && d.getChapter()==k.getChapter() && d.getVerse() == k.getVerse()){
-                    //saveVerse.setImageResource(R.drawable.ic_sd_storage_red_24dp);
-                    dataObjects.get(position).setSelected(true);
-                }
             }
 
             audio.setOnClickListener(new View.OnClickListener() {
@@ -200,6 +193,7 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
                     } else {
                         saveVerse.setImageResource(R.drawable.ic_sd_storage_red_24dp);
                         dataObjects.get(position).setSelected(true);
+                        savedVerses.add(dataObjects.get(position));
                         AppExecutors.getInstance().diskIO().execute(new Runnable() {
                             public void run() {
                                 DataObject d = new DataObject(k.getId(), k.getBooks(), k.getChapter(), k.getVerse(), text, true);

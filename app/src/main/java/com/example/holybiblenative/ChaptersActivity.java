@@ -15,6 +15,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 
 public class ChaptersActivity extends AppCompatActivity {
@@ -84,6 +86,8 @@ public class ChaptersActivity extends AppCompatActivity {
         ListView listView = findViewById(R.id.books_list3);
         listView.setAdapter(adapter);
 
+        Gson gson = new Gson();
+
         intent = new Intent(ChaptersActivity.this,
                 DisplayActivity.class).putExtra("Book", books)
                 .putExtra("DATABASE_TO_USE", database_toUse)
@@ -92,29 +96,18 @@ public class ChaptersActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                loadData(position + 1);
+                //This is to load from database and convert to string and save in order to be
+//                ArrayList l = new ArrayList();
+//                l = loadData(position + 1);
+//                String json = gson.toJson(l);
+//                SharedPreferences.Editor editor = sharedPreferences.edit();
+//                editor.putString("ArrayList", json);
+//                editor.apply();
+
                 intent.putExtra("Chapter", position + 1);
+                JIService.enqueueWork(ChaptersActivity.this, intent);
 
                 startActivity(intent);
-
-
-//                new Handler().postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        startActivity(new Intent(ChaptersActivity.this, DisplayActivity.class));
-//                    }
-//                }, 100);
-
-
-
-
-//                Intent intent = new Intent(ChaptersActivity.this,
-//                        DisplayActivity.class).putExtra("Book", books)
-//                        .putExtra("Chapter", position + 1)
-//                        .putExtra("DATABASE_TO_USE", database_toUse)
-//                        .putExtra("Number of Chapters", numberOfChapters);
-
-                //startActivity(intent);
             }
         });
     }

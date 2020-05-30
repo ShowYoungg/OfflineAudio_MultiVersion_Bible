@@ -1,14 +1,10 @@
 package com.example.holybiblenative;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.NavUtils;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -25,7 +21,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -33,46 +32,44 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import static com.example.holybiblenative.ChaptersActivity.objects;
-import static com.example.holybiblenative.MainActivity.*;
+public class ChapterDisplayActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
 
+    private int testament;
+    private String books, database_toUse;
+    private int numberOfChapters;
+    private String[] c;
+    private SharedPreferences sharedPreferences;
+    private String SHARED_PREFERENCE_NAME = "SEARCH";
+    private String dbName;
+    public static ArrayList<DataObject> objects;
 
-public class DisplayActivity extends AppCompatActivity implements TextToSpeech.OnInitListener,
-        BibleFragment.OnChapterClickListener {
-
-    public static ListView displayList;
-    public static DisplayAdapter displayAdapter;
-    public static ArrayList<DataObject> dataObjectsList;
+    private RelativeLayout progressBarLayout;
+    private ProgressBar progressBar;
+    private TextToSpeech textToSpeech;
+    public ListView displayList;
+    public DisplayAdapter displayAdapter;
+    public ArrayList<DataObject> dataObjectsList;
     public ArrayList<DataObject> dataObjectArrayList;
     private DataObject dataObject;
     public String content;
-    public String book;
     public String que;
-    private String dbName, database_toUse;
     public int chapter;
     public int verse;
-    private int number_of_chapters;
-    private boolean twoPane = false;
-    private RelativeLayout progressBarLayout;
-    private ProgressBar progressBar;
+    private FrameLayout displayFrame;
+    private FrameLayout chapterListFrame;
+    private Menu mMenu;
 
-    private TextToSpeech textToSpeech;
-    private SharedPreferences sharedPreferences;
-    //public static ArrayList<DataObject> objectss;
-
-    private String SHARED_PREFERENCE_NAME = "SEARCH";
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.version_menus, menu);
+        mMenu = menu;
         //Associate searchable configuration with the SearchView
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.search_bar).getActionView();
@@ -82,13 +79,11 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         searchView.setSubmitButtonEnabled(false);
 
         //All menus are hidden when showing saved verses
-        if (getIntent().hasExtra("Position")){
+        if (getIntent().hasExtra("Position") || findViewById(R.id.display_frame).getVisibility() != View.VISIBLE){
             for (int i = 0; i <= menu.size()-1; i++) {
                 menu.getItem(i).setVisible(false);
             }
         }
-
-
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -107,77 +102,86 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        dataObjectArrayList.clear();
 
-        switch (item.getItemId()){
-            //Navigation through action bar only if on tablet mode
+        int id = item.getItemId();
+        dataObjectArrayList.clear();
+        switch (id){
             case android.R.id.home:
-                if (twoPane){
-                    NavUtils.navigateUpFromSameTask(DisplayActivity.this);
-                    return true;
+                if (chapterListFrame.getVisibility() == View.VISIBLE){
+                    if (id == android.R.id.home) {
+                        NavUtils.navigateUpFromSameTask(this);
+                    }
+                    return super.onOptionsItemSelected(item);
                 } else {
-                    onBackPressed();
+                    displayFrame.setVisibility(View.GONE);
+                    chapterListFrame.setVisibility(View.VISIBLE);
+                    //All menus are hidden when showing saved verses
+                    if (findViewById(R.id.display_frame).getVisibility() != View.VISIBLE){
+                        for (int i = 0; i <= mMenu.size()-1; i++) {
+                            mMenu.getItem(i).setVisible(false);
+                        }
+                    }
                     return true;
                 }
 
             case R.id.akjv:
                 //
                 content = "field13";
-                loadData(content, book, chapter, verse,"");
+                loadData(content, books, chapter, verse,"");
                 return true;
 
             case R.id.kjv:
                 //
                 content = "field5";
-                loadData(content, book, chapter, verse, "");
+                loadData(content, books, chapter, verse, "");
                 return true;
 
             case R.id.bbe:
                 //
                 content = "field14";
-                loadData(content, book, chapter, verse, "");
+                loadData(content, books, chapter, verse, "");
                 return true;
 
             case R.id.wbt:
                 //
                 content = "field10";
-                loadData(content, book, chapter, verse, "");
+                loadData(content, books, chapter, verse, "");
                 return true;
 
             case R.id.ylt:
                 //
                 content = "field12";
-                loadData(content, book, chapter, verse, "");
+                loadData(content, books, chapter, verse, "");
                 return true;
 
             case R.id.darby:
                 //
                 content = "field8";
-                loadData(content, book, chapter, verse, "");
+                loadData(content, books, chapter, verse, "");
                 return true;
 
             case R.id.drb:
                 //
                 content = "field7";
-                loadData(content, book, chapter, verse, "");
+                loadData(content, books, chapter, verse, "");
                 return true;
 
             case R.id.asv:
                 //
                 content = "field6";
-                loadData(content, book, chapter, verse, "");
+                loadData(content, books, chapter, verse, "");
                 return true;
 
             case R.id.erv:
                 //
                 content = "field9";
-                loadData(content, book, chapter, verse, "");
+                loadData(content, books, chapter, verse, "");
                 return true;
 
             case R.id.web:
                 //
                 content = "field11";
-                loadData(content, book, chapter, verse, "");
+                loadData(content, books, chapter, verse, "");
                 return true;
 
             default:
@@ -192,12 +196,15 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         final BottomNavigationView bottomNavigationView = findViewById(R.id.nav_view);
         bottomNavigationView.setOnNavigationItemSelectedListener(getmNavigate());
 
-        if (getIntent().hasExtra("Position")){
-            bottomNavigationView.setVisibility(View.GONE);
+        //This will lock orientation to portrait
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-            //This will lock orientation to portrait
-            this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
+//        if (getIntent().hasExtra("Position")){
+//            bottomNavigationView.setVisibility(View.GONE);
+//
+//            //This will lock orientation to portrait
+//            this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//        }
 
         displayList.setOnScrollListener(new AbsListView.OnScrollListener() {
             int lastScrollVisibleItem;
@@ -223,139 +230,70 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (number_of_chapters == 0){
-            content = "field5";
-            book = sharedPreferences.getString("Book", "Genesis.db");
-           //chapter = sharedPreferences.getInt("Chapter", 0);
-            database_toUse = sharedPreferences.getString("DATATOUSE", book + ".db");
-            number_of_chapters = sharedPreferences.getInt("Number of Chapters", 0);
-        }
-    }
-
-    @Override
-    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        dataObjectArrayList = savedInstanceState.getParcelableArrayList("LIST");
-        
-        //if (twoPane) chapter = savedInstanceState.getInt("Chapter");
-        chapter = savedInstanceState.getInt("Chapter");
-        displayList = findViewById(R.id.display_chapters);
-        displayAdapter = new DisplayAdapter(DisplayActivity.this, dataObjectArrayList, content);
-        displayList.setAdapter(displayAdapter);
-    }
-
-    @Override
-    protected void onSaveInstanceState(@Nullable Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-
-        if ((displayAdapter.getDataObjects()) != null) {
-            savedInstanceState.putParcelableArrayList("LIST", new ArrayList<DataObject>(displayAdapter.getDataObjects()));
-            //if (twoPane) savedInstanceState.putInt("Chapter", chapter);
-            savedInstanceState.putInt("Chapter", chapter);
-
-        } else{
-            savedInstanceState.putParcelableArrayList("LIST", new ArrayList<DataObject>(dataObjectArrayList));
-            //if (twoPane) savedInstanceState.putInt("Chapter", chapter);
-            savedInstanceState.putInt("Chapter", chapter);
-        }
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_display);
+        setContentView(R.layout.activity_chapter_display);
 
         ActionBar actionBar = this.getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        objects = new ArrayList<>();
+        sharedPreferences = getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE);
 
+        if (getIntent() != null){
+            //testament = getIntent().getIntExtra("Testament", 0);
+            database_toUse = getIntent().getStringExtra("DATABASE_TO_USE");
+            books = getIntent().getStringExtra("Book");
+            numberOfChapters = getIntent().getIntExtra("Number of Chapters", 0);
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("Book", books);
+            editor.putString("DATATOUSE", database_toUse);
+            editor.putInt("Number of Chapters", numberOfChapters);
+            editor.apply();
+
+            c = new String[numberOfChapters];
+            for (int i = 0; i<=numberOfChapters-1; i++){
+                c[i] = String.valueOf(i + 1);
+            }
+        }
+
+        objects = new ArrayList<>();
         dataObject = new DataObject();
         dataObjectArrayList = new ArrayList<>();
         dataObjectsList = new ArrayList<>();
         content = "field5";
-
         sharedPreferences = getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE);
-
         displayList = findViewById(R.id.display_chapters);
         progressBarLayout = findViewById(R.id.layout_progress_bar);
         progressBar = findViewById(R.id.progress_bar);
+        displayFrame = findViewById(R.id.display_frame);
+        chapterListFrame = findViewById(R.id.books_list3_frame);
 
-        if (findViewById(R.id.bible_frag) != null){
-            twoPane = true;
-        }
+//        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.chapter_list, c );
+//        GridView listView = findViewById(R.id.books_list3);
 
-        if (savedInstanceState == null){
-            //This intent will allow to show saved verses instead of the original view with bottomNavigation
-            if (getIntent() != null && getIntent().hasExtra("Position")){
+        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.books_list_view, c );
+        GridView listView = findViewById(R.id.books_list3);
+        listView.setAdapter(adapter);
 
-                loadSavedVerses();
-
-                final BottomNavigationView bottomNavigationView = findViewById(R.id.nav_view);
-                progressBarLayout.setVisibility(View.GONE);
-                progressBar.setVisibility(View.GONE);
-                bottomNavigationView.setVisibility(View.GONE);
-                if (twoPane){
-                    FrameLayout frameLayout = findViewById(R.id.bible_frag);
-                    frameLayout.setVisibility(View.GONE);
-
-                    //Resetting of width so BibleFragment cannot show when showing saved verses
-                    RelativeLayout relativeLayout = findViewById(R.id.relative);
-                    relativeLayout.getLayoutParams().width = RelativeLayout.LayoutParams.MATCH_PARENT;
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                chapterListFrame.setVisibility(View.GONE);
+                displayFrame.setVisibility(View.VISIBLE);
+                chapter = position + 1;
+                loadData(content, books, chapter, verse, "");
+                //All menus are enabled when showing saved verses
+                if (findViewById(R.id.display_frame).getVisibility() == View.VISIBLE){
+                    for (int i = 0; i <= mMenu.size()-1; i++) {
+                        mMenu.getItem(i).setVisible(true);
+                    }
                 }
-                return;
             }
+        });
 
-            if(getIntent() != null && getIntent().hasExtra("Book")){
-
-                book = getIntent().getStringExtra("Book");
-                if (!twoPane){
-                    chapter = getIntent().getIntExtra("Chapter", 1);
-                } else {
-                    chapter = 1;
-                }
-                database_toUse = getIntent().getStringExtra("DATABASE_TO_USE");
-                number_of_chapters = getIntent().getIntExtra("Number of Chapters", 0);
-                verse = 1;
-
-                if (twoPane){
-                    displayList = findViewById(R.id.display_chapters);
-                    displayAdapter = new DisplayAdapter(DisplayActivity.this, objects, content);
-                    monitorProgressBar();
-
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            loadData(content, book, chapter, verse, "");
-                        }
-                    }, 250);
-
-                    Bundle b = new Bundle();
-                    b.putInt("Number of Chapters", number_of_chapters);
-
-                    BibleFragment bibleFragment = new BibleFragment();
-                    bibleFragment.setArguments(b);
-                    FragmentManager fragmentManager = getSupportFragmentManager();
-                    fragmentManager.beginTransaction()
-                            .replace(R.id.bible_frag, bibleFragment).commit();
-                }
-
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putInt("Chapter", chapter);
-                editor.putString("Book", book);
-                editor.putString("DATATOUSE", database_toUse);
-                editor.putInt("Number of Chapters", number_of_chapters);
-                editor.apply();
-            }
-        } else {
-            progressBar.setVisibility(View.GONE);
-            progressBarLayout.setVisibility(View.GONE);
-        }
     }
 
     public BottomNavigationView.OnNavigationItemSelectedListener getmNavigate(){
@@ -366,10 +304,10 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
                     case R.id.navigation_left:
                         //
                         if (chapter == 1){
-                            Toast.makeText(DisplayActivity.this, "Move to the next chapter", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ChapterDisplayActivity.this, "Move to the next chapter", Toast.LENGTH_SHORT).show();
                         } else {
                             chapter -=1;
-                            loadData(content, book, chapter, verse, "");
+                            loadData(content, books, chapter, verse, "");
                         }
                         return true;
 
@@ -381,11 +319,11 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
 
                     case R.id.navigation_right:
                         //
-                        if (chapter == number_of_chapters){
-                            Toast.makeText(DisplayActivity.this, "Move to the previous chapter", Toast.LENGTH_SHORT).show();
+                        if (chapter == numberOfChapters){
+                            Toast.makeText(ChapterDisplayActivity.this, "Move to the previous chapter", Toast.LENGTH_SHORT).show();
                         } else {
                             chapter +=1;
-                            loadData(content, book, chapter, verse, "");
+                            loadData(content, books, chapter, verse, "");
                         }
                         return true;
                 }
@@ -395,6 +333,9 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
     }
 
     private void loadData(String content, String book, int chapter, int verse, String query) {
+
+        monitorProgressBar();
+
         if (dataObjectArrayList.size() >= 1){
             dataObjectArrayList.clear();
             dataObjectArrayList = new ArrayList<>();
@@ -431,12 +372,11 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        displayAdapter = new DisplayAdapter(DisplayActivity.this, dataObjectArrayList, content);
+        displayAdapter = new DisplayAdapter(ChapterDisplayActivity.this, dataObjectArrayList, content);
         displayList.setAdapter(displayAdapter);
     }
 
     private void monitorProgressBar(){
-
         progressBarLayout.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
         new Handler().postDelayed(new Runnable() {
@@ -453,20 +393,6 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         }, 100);
     }
 
-    public void loadSavedVerses(){
-        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-        viewModel.getDataObj().observe(this, new Observer<List<DataObject>>() {
-            @Override
-            public void onChanged(@Nullable List<DataObject> dataObjects) {
-                if (dataObjects != null){
-                    displayList = findViewById(R.id.display_chapters);
-                    displayAdapter = new DisplayAdapter(getApplicationContext(),
-                            (ArrayList<DataObject>)dataObjects, "Saved Verses");
-                    displayList.setAdapter(displayAdapter);
-                }
-            }
-        });
-    }
 
     @Override
     public void onInit(int status) {
@@ -503,9 +429,5 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         super.onStop();
     }
 
-    @Override
-    public void onStepListSelected(int chapter) {
-        this.chapter = chapter;
-        loadData(content, book, chapter, verse, "");
-    }
+
 }

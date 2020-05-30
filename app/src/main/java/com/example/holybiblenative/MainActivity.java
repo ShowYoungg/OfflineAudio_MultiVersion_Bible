@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView listView;
 
     public static final String SHARED_PREFERENCE_NAME = "Database";
-    public static List<DataObject> savedVerses;
+    public static ArrayList<DataObject> savedVerses;
 
 
     private String[] all = {"Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",

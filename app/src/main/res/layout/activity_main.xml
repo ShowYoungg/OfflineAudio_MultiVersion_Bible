@@ -1,60 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="25dp"
+    android:weightSum="10"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <ListView
-        android:id="@+id/books_list"
-        android:layout_gravity="center_vertical"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="0dp"
+        android:layout_weight="9"
+        android:layout_margin="25dp">
+
+        <ListView
+            android:id="@+id/books_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical" />
+
+
+        <LinearLayout
+            android:id="@+id/progress_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:background="@color/colorPrimary"
+            android:orientation="horizontal"
+            android:visibility="invisible"
+            android:weightSum="2.5">
+
+            <ProgressBar
+                android:id="@+id/progress_bar_small"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:indeterminateBehavior="repeat"
+                android:paddingStart="20dp"
+                android:paddingTop="200dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="200dp" />
+
+            <TextView
+                android:id="@+id/loading"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.5"
+                android:gravity="center_vertical"
+                android:text="Loading"
+                android:textColor="@color/colorAccent"
+                android:textSize="30sp" />
+
+        </LinearLayout>
+
+    </FrameLayout>
 
     <TextView
         android:id="@+id/privacy_policy"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginTop="20dp"
         android:text="Privacy Policy"
         android:textColor="@color/colorAccent"
-        android:textSize="20sp"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginTop="20dp"/>
+        android:textSize="20sp" />
 
-    <LinearLayout
-        android:id="@+id/progress_bar_layout"
-        android:layout_gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:orientation="horizontal"
-        android:visibility="invisible"
-        android:weightSum="2.5"
-        android:background="@color/colorPrimary">
+</LinearLayout>
 
-        <ProgressBar
-            android:id="@+id/progress_bar_small"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:paddingTop="200dp"
-            android:paddingBottom="200dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:indeterminateBehavior="repeat"
-            android:layout_gravity="center_vertical"/>
 
-        <TextView
-            android:id="@+id/loading"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1.5"
-            android:text="Loading"
-            android:textSize="30sp"
-            android:gravity="center_vertical"
-            android:textColor="@color/colorAccent"/>
-
-    </LinearLayout>
-
-</FrameLayout>

@@ -135,7 +135,7 @@ public class TestamentsActivity extends AppCompatActivity{
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Intent intent = new Intent(TestamentsActivity.this,
-                            ChaptersActivity.class).putExtra("DATABASE_TO_USE", confirmDb(books[position]))
+                            ChapterDisplayActivity.class).putExtra("DATABASE_TO_USE", confirmDb(books[position]))
                             .putExtra("Book", books[position])
                             .putExtra("Number of Chapters", chapters[position]);
                     startActivity(intent);
