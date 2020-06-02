@@ -15,8 +15,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.google.gson.Gson;
-
 import java.util.ArrayList;
 
 public class ChaptersActivity extends AppCompatActivity {
@@ -85,8 +83,6 @@ public class ChaptersActivity extends AppCompatActivity {
         ArrayAdapter adapter = new ArrayAdapter(this, R.layout.books_list_view, c );
         ListView listView = findViewById(R.id.books_list3);
         listView.setAdapter(adapter);
-
-        Gson gson = new Gson();
 
         intent = new Intent(ChaptersActivity.this,
                 DisplayActivity.class).putExtra("Book", books)

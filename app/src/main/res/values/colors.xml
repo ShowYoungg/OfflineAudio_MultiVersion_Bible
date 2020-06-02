@@ -5,4 +5,20 @@
     <color name="transparentColor">#6000574B</color>
     <color name="colorAccent">#D81B60</color>
     <color name="material">#01484949</color>
+
+    <color name="colorPrimary1">#FD1669</color>
+    <color name="colorPrimaryDark1">#B30140</color>
+    <color name="transparentColor1">#60B30140</color>
+    <color name="colorAccent1">#16FDDA</color>
+
+    <color name="colorPrimary2">#16FDDA</color>
+    <color name="colorPrimaryDark2">#028A75</color>
+    <color name="transparentColor2">#60028A75</color>
+    <color name="colorAccent2">#F516FD</color>
+
+    <color name="colorPrimary3">#FA2F36</color>
+    <color name="colorPrimaryDark3">#E00724</color>
+    <color name="transparentColor3">#60E00724</color>
+    <color name="colorAccent3">#FDD716</color>
+
 </resources>

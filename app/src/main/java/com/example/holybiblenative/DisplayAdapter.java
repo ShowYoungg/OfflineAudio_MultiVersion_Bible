@@ -90,10 +90,12 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
 
         if (k != null){
 
-            for (DataObject d: savedVerses) {
-                if (d.getBooks().equals(k.getBooks()) && d.getChapter()==k.getChapter() && d.getVerse() == k.getVerse()){
-                    //saveVerse.setImageResource(R.drawable.ic_sd_storage_red_24dp);
-                    dataObjects.get(position).setSelected(true);
+            if (savedVerses != null){
+                for (DataObject d: savedVerses) {
+                    if (d.getBooks().equals(k.getBooks()) && d.getChapter()==k.getChapter() && d.getVerse() == k.getVerse()){
+                        //saveVerse.setImageResource(R.drawable.ic_sd_storage_red_24dp);
+                        dataObjects.get(position).setSelected(true);
+                    }
                 }
             }
 
@@ -220,6 +222,14 @@ public class DisplayAdapter extends ArrayAdapter<DataObject> implements TextToSp
     public void setData(ArrayList<DataObject> dataObjects){
         this.dataObjects = dataObjects;
         notifyDataSetChanged();
+    }
+
+    public void getTTS(){
+        if (textToSpeech != null){
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+        }
+
     }
 
     public ArrayList<DataObject> getDataObjects(){

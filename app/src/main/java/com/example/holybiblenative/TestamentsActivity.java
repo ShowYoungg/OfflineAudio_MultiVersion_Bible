@@ -143,27 +143,6 @@ public class TestamentsActivity extends AppCompatActivity{
                 }
             });
         }
-//                AppExecutors.getInstance().diskIO().execute(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Database db = new Database(getApplicationContext(), "TEN_IN_ONE.db");
-//                        db.open();
-//                        dl = db.testing(books[position]);
-//                        db.close();
-//
-//                        try {
-//                            Thread.sleep(5000);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-////                        for (DataObject d: dl) {
-////                            mDb.dataDao().insertData(d);
-////                        }
-//                        mDb.dataDao().insertAllData(dl);
-//
-//                    }
-//                });
-
     }
 
     private String database_toUse;

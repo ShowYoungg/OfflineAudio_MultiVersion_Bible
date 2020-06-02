@@ -11,18 +11,18 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_bible"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/BibleAppTheme">
+        <activity android:name=".SettingsActivity"></activity>
         <activity android:name=".ChapterDisplayActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".TestamentsActivity" />
-
         </activity>
-        <activity android:name=".SearchResultsActivity"></activity>
+        <activity android:name=".SearchResultsActivity" />
         <activity android:name=".DisplayActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

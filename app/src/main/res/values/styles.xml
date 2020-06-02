@@ -8,7 +8,17 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="BibleAppTheme2" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="BibleAppTheme1" parent="Theme.AppCompat.DayNight.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary1</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark1</item>
+        <item name="colorAccent">@color/colorAccent1</item>
+<!--        <item name="android:background">@color/colorPrimary1</item>-->
+<!--        <item name="android:textColor">@android:color/white</item>-->
+    </style>
+
+
+    <style name="BibleAppTheme2" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>

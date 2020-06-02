@@ -33,7 +33,6 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -395,6 +394,13 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
     }
 
     private void loadData(String content, String book, int chapter, int verse, String query) {
+
+        //This method stops and shutdown Google TTS engine being played if any
+        if (displayAdapter != null){
+            displayAdapter.getTTS();
+        }
+
+        //
         if (dataObjectArrayList.size() >= 1){
             dataObjectArrayList.clear();
             dataObjectArrayList = new ArrayList<>();
@@ -490,12 +496,14 @@ public class DisplayActivity extends AppCompatActivity implements TextToSpeech.O
         if (textToSpeech != null){
             textToSpeech.stop();
         }
+        displayAdapter.getTTS();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         textToSpeech.shutdown();
+
     }
 
     @Override

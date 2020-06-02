@@ -38,6 +38,9 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import static com.example.holybiblenative.MainActivity.SHARED_PREFERENCE_NAME;
+import static com.example.holybiblenative.MainActivity.content_field;
+
 public class ChapterDisplayActivity extends AppCompatActivity implements TextToSpeech.OnInitListener {
 
     private int testament;
@@ -45,7 +48,7 @@ public class ChapterDisplayActivity extends AppCompatActivity implements TextToS
     private int numberOfChapters;
     private String[] c;
     private SharedPreferences sharedPreferences;
-    private String SHARED_PREFERENCE_NAME = "SEARCH";
+    //private String SHARED_PREFERENCE_NAME = "SEARCH";
     private String dbName;
     public static ArrayList<DataObject> objects;
 
@@ -240,6 +243,8 @@ public class ChapterDisplayActivity extends AppCompatActivity implements TextToS
         }
 
         sharedPreferences = getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE);
+        content_field = sharedPreferences.getString("VERSION", "");
+
 
         if (getIntent() != null){
             //testament = getIntent().getIntExtra("Testament", 0);
@@ -263,8 +268,14 @@ public class ChapterDisplayActivity extends AppCompatActivity implements TextToS
         dataObject = new DataObject();
         dataObjectArrayList = new ArrayList<>();
         dataObjectsList = new ArrayList<>();
-        content = "field5";
-        sharedPreferences = getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE);
+
+        if (content_field == null || content_field.equals("")){
+            content = "field5";
+        } else {
+            content = content_field;
+        }
+
+        //sharedPreferences = getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         displayList = findViewById(R.id.display_chapters);
         progressBarLayout = findViewById(R.id.layout_progress_bar);
         progressBar = findViewById(R.id.progress_bar);
@@ -333,6 +344,10 @@ public class ChapterDisplayActivity extends AppCompatActivity implements TextToS
     }
 
     private void loadData(String content, String book, int chapter, int verse, String query) {
+        //This method stops and shutdown Google TTS engine being played if any
+        if (displayAdapter != null){
+            displayAdapter.getTTS();
+        }
 
         monitorProgressBar();
 
@@ -405,9 +420,8 @@ public class ChapterDisplayActivity extends AppCompatActivity implements TextToS
             textToSpeech.setVoice(v);
             textToSpeech.setSpeechRate(0.8f);
         }
-
-        String sv = textToSpeech.getVoice().getName();
-        Log.i("TEXT_TO_SPEECH", sv);
+//        String sv = textToSpeech.getVoice().getName();
+//        Log.i("TEXT_TO_SPEECH", sv);
     }
 
     @Override
@@ -416,12 +430,16 @@ public class ChapterDisplayActivity extends AppCompatActivity implements TextToS
         if (textToSpeech != null){
             textToSpeech.stop();
         }
+        if (displayAdapter != null){
+            displayAdapter.getTTS();
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         textToSpeech.shutdown();
+        displayAdapter.getTTS();
     }
 
     @Override

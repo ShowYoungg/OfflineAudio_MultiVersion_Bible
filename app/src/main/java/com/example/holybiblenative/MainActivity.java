@@ -1,16 +1,22 @@
 package com.example.holybiblenative;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -18,6 +24,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,8 +46,12 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<DataObject> dl;
     private String dbName;
     private int databaseStatus;
+    public static int themeId;
     private TextView privacy;
     private ListView listView;
+    private FloatingActionButton fab;
+    public static String content_field;
+    //public static int themeNumber;
 
     public static final String SHARED_PREFERENCE_NAME = "Database";
     public static ArrayList<DataObject> savedVerses;
@@ -62,6 +74,98 @@ public class MainActivity extends AppCompatActivity {
 
     int checkerA = 0;
     int checkerB = 0;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.version_menus_main, menu);
+        return true;
+    }
+
+
+    private void saveVersionOption(String field){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("VERSION", field);
+        editor.apply();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        switch (id){
+            case R.id.akjv:
+                //
+                content_field = "field13";
+                saveVersionOption(content_field);
+                Toast.makeText(this, "American King James version saved", Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.kjv:
+                //
+                content_field = "field5";
+                saveVersionOption(content_field);
+                Toast.makeText(this, "King James version saved", Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.bbe:
+                //
+                content_field = "field14";
+                saveVersionOption(content_field);
+                Toast.makeText(this, "Basic Bible English version saved", Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.wbt:
+                //
+                content_field = "field10";
+                saveVersionOption(content_field);
+                Toast.makeText(this, "Webster Bible version saved", Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.ylt:
+                //
+                content_field = "field12";
+                saveVersionOption(content_field);
+                Toast.makeText(this, "Young's Literal Translation saved", Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.darby:
+                //
+                content_field = "field8";
+                saveVersionOption(content_field);
+                Toast.makeText(this, "Darby Bible Translation saved", Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.drb:
+                //
+                content_field = "field7";
+                saveVersionOption(content_field);
+                Toast.makeText(this, "Douay-Rheims Bible saved", Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.asv:
+                //
+                content_field = "field6";
+                saveVersionOption(content_field);
+                Toast.makeText(this, "American Standard Version saved", Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.erv:
+                //
+                content_field = "field9";
+                saveVersionOption(content_field);
+                Toast.makeText(this, "English Revised Version saved", Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.web:
+                //
+                content_field = "field11";
+                saveVersionOption(content_field);
+                Toast.makeText(this, "World English Bible saved", Toast.LENGTH_SHORT).show();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     protected void onStart() {
@@ -111,9 +215,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //setTheme(R.style.BibleAppTheme1);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -124,11 +228,26 @@ public class MainActivity extends AppCompatActivity {
 
         sharedPreferences = getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         databaseStatus = sharedPreferences.getInt("DATABASE", 0);
+        themeId = sharedPreferences.getInt("THEME", 0);
+
+        listView = findViewById(R.id.books_list);
+//        fab = findViewById(R.id.floatingActionButton3);
+        privacy = findViewById(R.id.privacy_policy);
+
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+////                themeNumber = 1;
+////                ArrayAdapter adapter = new ArrayAdapter(MainActivity.this, R.layout.chapter_list, oldNewAll );
+////                listView.setAdapter(adapter);
+//
+//                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+//                startActivity(intent);
+//
+//            }
+//        });
 
         ArrayAdapter adapter = new ArrayAdapter(this, R.layout.books_list_view, oldNewAll );
-        listView = findViewById(R.id.books_list);
-        privacy = findViewById(R.id.privacy_policy);
-        //listView.setVisibility(View.VISIBLE);
         listView.setAdapter(adapter);
 
         privacy.setOnClickListener(new View.OnClickListener() {
