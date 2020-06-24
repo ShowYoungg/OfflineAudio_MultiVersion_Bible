@@ -20,10 +20,13 @@ I did productionize this app, taking it from a no state to a production-ready st
 During lockdown imposed by the Nigerian Government necessitated by COVID 19, I had more time to read Bibles and wanted a Bible app with many versions and offline capability which can play audio of the texts written there, I searched tirelessly without finding a favourable one: hence, I decided to find a solution.
 
 ## Bible Versions in this app
-* Darby Bible Version
+* Darby Bible Translation
 * King James Bible Version
 * Basic Bible Version
-* Webster Bible Translation
+* Webster Bible Version
 * Douay Rheim Bible Transaction
 * American King James Version
-* 
+* Young's Literal Bible
+* World English Bible
+* English Revised Edition
+* American Standard Version
