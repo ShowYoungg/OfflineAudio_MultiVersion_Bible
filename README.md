@@ -2,11 +2,11 @@
 Offline Audio Bible (Ten Versions) App is a Religious app which features ten Bible versions with ability to read out the text that you see while everything is done offline. The ability to read out text is made possible by Google TextToSpeech Engine.
 
 ## Screenshots
-![Screen](https://github.com/ShowYoungg/Baking_App/blob/master/Screenshot_2018-11-04-10-11-02.png)
-![Phone](https://github.com/ShowYoungg/Baking_App/blob/master/Screenshot_2018-11-04-10-11-22.png)
-![Screen](https://github.com/ShowYoungg/Baking_App/blob/master/Screenshot_2018-11-03-22-55-13.png)
-![Screen](https://github.com/ShowYoungg/Baking_App/blob/master/Screenshot_2018-11-04-10-10-14.png)![Screen](https://github.com/ShowYoungg/Baking_App/blob/master/Screenshot_2018-11-04-10-10-30.png)
-![Screen](https://github.com/ShowYoungg/Baking_App/blob/master/Screenshot_2018-11-03-22-54-54.png)
+![Screen](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Screenshot_20200624-165414.png)
+![Phone](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Screenshot_20200624-165359.png)
+![Screen](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Screenshot_20200624-165350.png)
+![Screen](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Screenshot_20200624-165337.png)![Screen](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Capture.png)
+![Screen](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Capture1.png)
 
 ## Used Libraries
 * Google TextToSpeech Engine
