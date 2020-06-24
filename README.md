@@ -30,3 +30,9 @@ During lockdown imposed by the Nigerian Government necessitated by COVID 19, I h
 * World English Bible
 * English Revised Edition
 * American Standard Version
+
+## Google Play Store Listing
+https://play.google.com/store/apps/details?id=com.soyinka.holybiblenative
+
+## Other way to run the app
+Download this GitHub master to or from Android Studio and run
