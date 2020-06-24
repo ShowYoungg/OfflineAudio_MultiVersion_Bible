@@ -2,10 +2,11 @@
 Offline Audio Bible (Ten Versions) App is a Religious app which features ten Bible versions with ability to read out the text that you see while everything is done offline. The ability to read out text is made possible by Google TextToSpeech Engine.
 
 ## Screenshots
-![Screen](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Screenshot_20200624-165414.png)
+![Phone] (https://github.com/ShowYoungg/HolyBibleNative/blob/master/Screenshot_20200624-174358.png)
+![Phone](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Screenshot_20200624-165414.png)
 ![Phone](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Screenshot_20200624-165359.png)
-![Screen](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Screenshot_20200624-165350.png)
-![Screen](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Screenshot_20200624-165337.png)![Screen](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Capture.PNG)
+![Phone](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Screenshot_20200624-165350.png)
+![Phone](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Screenshot_20200624-165337.png)![Screen](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Capture.PNG)
 ![Screen](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Capture1.PNG)
 
 ## Used Libraries
