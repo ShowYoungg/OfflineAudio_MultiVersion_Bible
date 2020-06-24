@@ -1,6 +1,5 @@
-# HolyBibleNative
-## Baking App
-Baking App is the fourth project of Udacity [Android Developer Nanodegree Program](https://www.udacity.com/course/android-developer-nanodegree-by-google--nd801).
+# Offline Audio Bible (Ten Versions)
+Offline Audio Bible (Ten Versions) App is a Religious app which features ten Bible versions with ability to read out the text that you see while everything is done offline. The ability to read out text is made possible by Google TextToSpeech Engine.
 
 ## Screenshots
 ![Screen](https://github.com/ShowYoungg/Baking_App/blob/master/Screenshot_2018-11-04-10-11-02.png)
@@ -10,43 +9,21 @@ Baking App is the fourth project of Udacity [Android Developer Nanodegree Progra
 ![Screen](https://github.com/ShowYoungg/Baking_App/blob/master/Screenshot_2018-11-03-22-54-54.png)
 
 ## Used Libraries
-* [Retrofit 2](https://github.com/square/retrofit) and 
-*[Gson converter](https://github.com/square/retrofit/tree/master/retrofit-converters/gson)
-* [Gson](https://github.com/google/gson)
-* [ExoPlayer](https://github.com/google/ExoPlayer)
+* Google TextToSpeech Engine
+* Prepackaged Database 
+* Android Architecture Components (ROOM for Database, LiveData, ViewModel etc)
 
 ## Project Overview
-I did productionize an app, taking it from a no state to a production-ready state. This involves finding and handling error cases, adding accessibility features, allowing for localization, adding a widget, and adding a library.
+I did productionize this app, taking it from a no state to a production-ready state. This involves finding and handling error cases, adding accessibility features, allowing for localization, adding many prepackaged databases, optimising SQLite database and adding a library.
 
 ## Why this Project?
-As a working Android developer, you often have to create and implement apps where you are responsible for designing and planning the steps you need to take to create a production-ready app. Unlike Popular Movies where we gave you an implementation guide, it will be up to you to figure things out for the Baking App.
+During lockdown imposed by the Nigerian Government necessitated by COVID 19, I had more time to read Bibles and wanted a Bible app with many versions and offline capability which can play audio of the texts written there, I searched tirelessly without finding a favourable one: hence, I decided to find a solution.
 
-## What I Learned
-In this project I did:
-* Use RecyclerView inside a RecyclerView
-* Use MediaPlayer/Exoplayer to display videos.
-* Handle error cases in Android.
-* Add a widget to the app experience.
-* Leverage a third-party library in the app.
-* Use Fragments to create a responsive design that works on phones and tablets.
-
-## Rubric
-
-### General App Usage
-- [x] App should display recipes from provided network resource.
-- [x] App should allow navigation between individual recipes and recipe steps.
-- [x] App uses RecyclerView and can handle recipe steps that include videos or images.
-- [x] App conforms to common standards found in the Android Nanodegree General Project Guidelines.
-
-### Components and Libraries
-- [x] Application uses Master Detail Flow to display recipe steps and navigation between them.
-- [x] Application uses Exoplayer to display videos.
-- [x] Application properly initializes and releases video assets when appropriate.
-- [x] Application should properly retrieve media assets from the provided network links. It should properly handle network requests.
-- [x] Application makes use of Espresso to test aspects of the UI.
-- [x] Application sensibly utilizes a third-party library to enhance the app's features. That could be helper library to interface with Content Providers if you choose to store the recipes, a UI binding library to avoid writing findViewById a bunch of times, or something similar.
-
-### Homescreen Widget
-- [x] Application has a companion homescreen widget.
-- [x] Widget displays ingredient list for desired recipe.
-
+## Bible Versions in this app
+* Darby Bible Version
+* King James Bible Version
+* Basic Bible Version
+* Webster Bible Translation
+* Douay Rheim Bible Transaction
+* American King James Version
+* 
