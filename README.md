@@ -2,7 +2,6 @@
 Offline Audio Bible (Ten Versions) App is a Religious app which features ten Bible versions with ability to read out the text that you see while everything is done offline. The ability to read out text is made possible by Google TextToSpeech Engine.
 
 ## Screenshots
-![Video](https://github.com/ShowYoungg/HolyBibleNative/blob/master/20200604_125253.mp4)
 ![Phone](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Screenshot_20200624-174358.png)
 ![Phone](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Screenshot_20200624-165414.png)
 ![Phone](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Screenshot_20200624-165359.png)
@@ -37,4 +36,4 @@ During lockdown imposed by the Nigerian Government necessitated by COVID 19, I h
 https://play.google.com/store/apps/details?id=com.soyinka.holybiblenative
 
 ## Other way to run the app
-Download this GitHub master to or from Android Studio and run
+Download this GitHub master to or from Android Studio and run or download the video to see the app being run https://github.com/ShowYoungg/HolyBibleNative/blob/master/20200604_125253.mp4
