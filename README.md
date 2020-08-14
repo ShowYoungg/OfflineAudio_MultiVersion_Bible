@@ -37,3 +37,7 @@ https://play.google.com/store/apps/details?id=com.soyinka.holybiblenative
 
 ## Other way to run the app
 Download this GitHub master to or from Android Studio and run or download the video to see the app being run https://github.com/ShowYoungg/HolyBibleNative/blob/master/20200604_125253.mp4
+
+## Releases
+Version 1.0
+https://play.google.com/store/apps/details?id=com.soyinka.holybiblenative
