@@ -2,13 +2,12 @@
 Offline Audio Bible (Ten Versions) App is a Religious app which features ten Bible versions with ability to read out the text that you see while everything is done offline. The ability to read out text is made possible by Google TextToSpeech Engine.
 
 ## Screenshots
-<img src= "https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165809.png" width="150"/>
-![Phone](https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165809.png)
-![Phone](https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165814.png)
-![Screen](https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165820.png)
-![Screen](https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165826.png)
-![Screen](https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165855.png)
-![Screen](https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165919.png)
+<img src= "https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165809.png" width="220"/>
+<img src= "https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165814.png" width="220"/>
+<img src= "https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165820.png" width="220"/>
+<img src= "https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165826.png" width="220"/>
+<img src= "https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165855.png" width="220"/>
+<img src= "https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165919.png" width="220"/>
 ![Screen](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Capture.PNG)
 ![Screen](https://github.com/ShowYoungg/HolyBibleNative/blob/master/Capture1.PNG)
 
