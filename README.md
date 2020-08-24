@@ -2,9 +2,9 @@
 Offline Audio Bible (Ten Versions) App is a Religious app which features ten Bible versions with ability to read out the text that you see while everything is done offline. The ability to read out text is made possible by Google TextToSpeech Engine.
 
 ## Screenshots
-![Phone](https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165809.png)
-![Phone](https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165814.png)
-![Screen](https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165820.png)
+![Phone](https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165809.png){:height="70px" width="30px"}
+![Phone](https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165814.png){:height="140px" width="60px"}
+![Screen](https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165820.png){:height="210px" width="90px"}
 ![Screen](https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165826.png)
 ![Screen](https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165855.png)
 ![Screen](https://github.com/ShowYoungg/OfflineAudio_MultiVersion_Bible/blob/master/Screenshot_20200817-165919.png)
